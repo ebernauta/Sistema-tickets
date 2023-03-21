@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--Boostrap-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for ('static', filename='/css/login.css')}}">
+    <title>Login de sistema</title>
+</head>
+
+<body class="text-center">
+    <main class="form-signin w-100 m-auto">
+        <form action="/login" method="POST">
+            <img src="\static\img\logo.png" alt="logo">
+            <h1 class="h3 mb-3 fw-normal">Sistema de tickets</h1>
+            {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+            <br />
+            {% for categories, message in messages %}
+            <div class="alert alert-{{categories}} alert-dismissible" role="alert">
+                <strong>{{ message }}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            {% endwith %}
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-floating">
+                <input type="text" class="form-control" name="user">
+                <label for="floatingInput">Usuario</label>
+            </div>
+            <div class="form-floating">
+                <input type="password" class="form-control" name="password">
+                <label for="floatingPassword">Contraseña</label>
+            </div>
+            <button class="w-100 btn btn-outline-primary" type="submit">Iniciar sesion</button>
+            
+            <div class="form-floating"><br>
+                <a href="#">¿Olvidó su Contraseña?</a>
+            </div>
+            <!-- <p class="mt-5 mb-3 text-muted">&copy; 2017–2022</p> -->
+        </form>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
