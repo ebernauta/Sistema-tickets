@@ -80,6 +80,10 @@ def protected():
     return "<h1>Esta es una vista protegida, solo para usuarios autenticados.</h1>"
 
 
+@app.route('/heroku')
+def heroku():
+    return render_template('herokuPrueba.html')
+
 def status_401(error):
     return redirect(url_for('login'))
 
