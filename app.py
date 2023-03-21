@@ -63,10 +63,21 @@ def logout():
     return redirect(url_for('login'))
 
 
+@app.route('/home2')
+@login_required
+def home2():
+    return render_template('home2.html')
+
+
+@app.route('/nuevoTicket')
+@login_required
+def nuevoticket():
+    return render_template('formularioTicket.html')
+
 @app.route('/home')
 @login_required
 def home():
-    return render_template('home2.html')
+    return render_template('home.html')
 
 @app.route('/panelControl')
 @login_required
