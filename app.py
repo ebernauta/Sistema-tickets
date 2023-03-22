@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_mysqldb import MySQL
-from flask_wtf.csrf import CSRFProtect
+from flask_wtf import CSRFProtect
 from flask_login import LoginManager, login_user, logout_user, login_required
 
 from config import config
@@ -14,8 +14,8 @@ from models.entities.User import User
 
 
 app = Flask(__name__)
-
-csrf = CSRFProtect()
+app.config['SECRET_KEY'] = '7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'
+csrf = CSRFProtect(app)
 db = MySQL(app)
 login_manager_app = LoginManager(app)
 
@@ -108,4 +108,4 @@ if __name__ == '__main__':
     csrf.init_app(app)
     app.register_error_handler(401, status_401)
     app.register_error_handler(404, status_404)
-    app.run()
+    app.run(debug=True)
