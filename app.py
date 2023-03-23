@@ -111,6 +111,6 @@ def status_404(error):
 app.register_error_handler(401, status_401)
 app.register_error_handler(404, status_404)
 app.config.from_object(config['development'])
+csrf.init_app(app)
 if __name__ == '__main__':
     app.run(debug=True)
-    csrf.init_app(app)
