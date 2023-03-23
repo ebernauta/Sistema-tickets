@@ -15,6 +15,11 @@ from models.entities.User import User
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = ''
+app.config['MYSQL_DB'] = 'flask_login'
+
 csrf = CSRFProtect(app)
 db = MySQL(app)
 login_manager_app = LoginManager(app)
@@ -103,9 +108,10 @@ def status_404(error):
     return "<h1>Página no encontrada</h1>", 404
 
 
+app.register_error_handler(401, status_401)
+app.register_error_handler(404, status_404)
+
 if __name__ == '__main__':
     app.config.from_object(config['development'])
     csrf.init_app(app)
-    app.register_error_handler(401, status_401)
-    app.register_error_handler(404, status_404)
     app.run(debug=True)
