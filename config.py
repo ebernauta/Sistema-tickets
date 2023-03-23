@@ -4,10 +4,10 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    MYSQL_HOST = 'localhost'
-    MYSQL_USER = 'root'
-    MYSQL_PASSWORD = ''
-    MYSQL_DB = 'flask_login'
+    MYSQL_HOST = 'munidalcahue.cl'
+    MYSQL_USER = 'munidalc_ticket'
+    MYSQL_PASSWORD = 'MDTicket-2023'
+    MYSQL_DB = 'munidalc_Tickets2'
 
 
 config = {
