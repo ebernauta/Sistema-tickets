@@ -32,3 +32,26 @@ class ModelUser():
                 return None
         except Exception as ex:
             raise Exception(ex)
+    
+    @classmethod
+    def allUsers(self, db):
+        try:
+            cursor = db.connection.cursor()
+            sql = "SELECT * FROM user"
+            cursor.execute(sql)
+            rows = cursor.fetchall()
+            return rows
+        except Exception as ex:
+            raise Exception(ex)
+        
+    
+    @classmethod
+    def newUser(self, db, username, password, fullname):
+        try:
+            cursor = db.connection.cursor()
+            sql = """INSERT INTO user (id, username, password, fullname) 
+                            VALUES (null,'{}','{}','{}')""".format(username, User.generatePasswordHash(password), fullname)
+            cursor.execute(sql)
+        except Exception as ex:
+            raise Exception(ex)
+            
