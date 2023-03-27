@@ -44,7 +44,7 @@ def login():
             if request.form['user'] == "admin":
                 if logged_user.password:
                     login_user(logged_user)
-                    return redirect(url_for('panelControl'))
+                    return redirect(url_for('loginPanel'))
                 else:
                     flash("Contraseña incorrecta...", 'danger')
                     return render_template('auth/login.html')
@@ -68,11 +68,6 @@ def logout():
     return redirect(url_for('login'))
 
 
-@app.route('/home2')
-@login_required
-def home2():
-    return render_template('home2.html')
-
 
 @app.route('/nuevoTicket')
 @login_required
@@ -84,10 +79,50 @@ def nuevoticket():
 def home():
     return render_template('home.html')
 
-@app.route('/panelControl')
+@app.route('/loginPanel', methods=['GET', 'POST'])
 @login_required
-def panelControl():
-    return render_template('panelControl.html')
+def loginPanel():
+    if request.method == 'POST':
+        contraseñaPanel = request.form['contraseñaPanel']
+        cursor = db.connection.cursor()
+        sql = """SELECT panelAdmin FROM admin WHERE panelAdmin = '{}'""".format(contraseñaPanel)
+        cursor.execute(sql)
+        row = cursor.fetchone()
+        if row != None:
+            return redirect(url_for('panelAdmin'))
+            print("debajo del redirect")
+        else:
+            flash("Contraseña maestra incorrecta...", 'danger')
+            return render_template('loginPanel.html')
+    else:
+        return render_template('loginPanel.html') 
+
+@app.route('/panelAdministracion', methods=['GET', 'POST'])
+@login_required
+def panelAdmin():
+    return render_template('panelAdmin.html')
+    
+   
+
+@app.route('/panelAdministracion/usuarios')
+@login_required
+def usuariosPanel():
+    listaUsuarios = ModelUser.allUsers(db)
+    print(listaUsuarios)
+    return render_template('usuariosPanel.html', filas=listaUsuarios)
+
+@app.route('/panelAdministracion/usuarios/agregarUsuario', methods=['GET', 'POST'])
+@login_required
+def agregarUsuarios():
+    if request.method == 'POST':
+        cursor = db.connection.cursor()
+        username = request.form['username']
+        password = request.form['password']
+        fullname = request.form['fullname']
+        nuevoUsuario = ModelUser.newUser(db, username, password, fullname)
+        return redirect(url_for('agregarUsuarios'))
+    else:
+        return render_template('agregarUsuarios.html')
 
 
 @app.route('/protected')
@@ -95,10 +130,6 @@ def panelControl():
 def protected():
     return "<h1>Esta es una vista protegida, solo para usuarios autenticados.</h1>"
 
-
-@app.route('/heroku')
-def heroku():
-    return render_template('herokuPrueba.html')
 
 def status_401(error):
     return redirect(url_for('login'))
