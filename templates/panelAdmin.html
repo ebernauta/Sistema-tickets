@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
-
-    <title>Sistema de tickets</title>
+    <title>Panel de administración</title>
 </head>
+
 <body>
     <div class="text-center bg-dark-subtle">
-        <h1>Generar nuevo ticket</h1>
+        <h1>Panel de administración</h1>
     </div>
     <div class="container">
         <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom ">
@@ -19,20 +20,12 @@
                 <span class="fs-3">&nbsp;&nbsp;Bienvenido, {{current_user.fullname}}</span>
             </a>
           <ul class="nav">
-            <li class="nav-item m-1"><a href="{{url_for('home')}}" class="btn btn-secondary" aria-current="page">Home</a></li>
-            <li class="nav-item m-1"><a href="{{ url_for('logout') }}" class="btn btn-danger">Cerrar Sesión</a></li>
+            <li class="nav-item m-1"><a href="{{url_for ('usuariosPanel') }}" class="btn btn-secondary">Usuarios</a></li>
+            <li class="nav-item m-1"><a href="{{ url_for ('logout') }}" class="btn btn-danger">Cerrar Sesión</a></li>
           </ul>
         </header>
     </div>
-    <div class="container">
-        <select class="form-select" aria-label="Default select example">
-            <option selected>Seleccione su departamento</option>
-            <option value="1">ADQ Y ABASTECIMIENTO</option>
-            <option value="2">AlCALDIA</option>
-            <option value="3">ASUNTOS SOCIALES</option>
-            <option value="4">DEPARTAMENTO DE OBRAS</option>
-        </select>
-    </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
