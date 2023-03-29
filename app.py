@@ -14,12 +14,6 @@ from models.entities.User import User
 
 
 app = Flask(__name__)
-# app.config['SECRET_KEY'] = '7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'
-# app.config['MYSQL_HOST'] = 'localhost'
-# app.config['MYSQL_USER'] = 'root'
-# app.config['MYSQL_PASSWORD'] = ''
-# app.config['MYSQL_DB'] = 'flask_login'
-
 csrf = CSRFProtect(app)
 db = MySQL(app)
 login_manager_app = LoginManager(app)
@@ -44,7 +38,7 @@ def login():
             if request.form['user'] == "admin":
                 if logged_user.password:
                     login_user(logged_user)
-                    return redirect(url_for('loginPanel'))
+                    return redirect(url_for('panelAdmin'))
                 else:
                     flash("Contraseña incorrecta...", 'danger')
                     return render_template('auth/login.html')
@@ -79,23 +73,23 @@ def nuevoticket():
 def home():
     return render_template('home.html')
 
-@app.route('/loginPanel', methods=['GET', 'POST'])
-@login_required
-def loginPanel():
-    if request.method == 'POST':
-        contraseñaPanel = request.form['contraseñaPanel']
-        cursor = db.connection.cursor()
-        sql = """SELECT panelAdmin FROM admin WHERE panelAdmin = '{}'""".format(contraseñaPanel)
-        cursor.execute(sql)
-        row = cursor.fetchone()
-        if row != None:
-            return redirect(url_for('panelAdmin'))
-            print("debajo del redirect")
-        else:
-            flash("Contraseña maestra incorrecta...", 'danger')
-            return render_template('auth/loginPanel.html')
-    else:
-        return render_template('auth/loginPanel.html') 
+# @app.route('/loginPanel', methods=['GET', 'POST'])
+# @login_required
+# def loginPanel():
+#     if request.method == 'POST':
+#         contraseñaPanel = request.form['contraseñaPanel']
+#         cursor = db.connection.cursor()
+#         sql = """SELECT panelAdmin FROM admin WHERE panelAdmin = '{}'""".format(contraseñaPanel)
+#         cursor.execute(sql)
+#         row = cursor.fetchone()
+#         if row != None:
+#             return redirect(url_for('panelAdmin'))
+#             print("debajo del redirect")
+#         else:
+#             flash("Contraseña maestra incorrecta...", 'danger')
+#             return render_template('auth/loginPanel.html')
+#     else:
+#         return render_template('auth/loginPanel.html') 
 
 @app.route('/panelAdministracion', methods=['GET', 'POST'])
 @login_required
@@ -144,11 +138,9 @@ def updateUsuario():
         return redirect(url_for('usuariosPanel'))
         
         
-
-
 @app.route('/panelAdministracion/departamentos')
 @login_required
-def departametosPanel():
+def departamentosPanel():
     cursor = db.connection.cursor()
     sql = """SELECT * FROM departamentos"""
     cursor.execute(sql)
@@ -156,21 +148,40 @@ def departametosPanel():
     print(listaDepartamentos)
     return render_template('panel/departamentosPanel.html', departamentos= listaDepartamentos)
 
-@app.route('/panelAdministracion/departamentos/agregarDepartamento', methods=['GET', 'POST'])
+
+@app.route('/newDepartamento', methods=['GET', 'POST'])
 @login_required
-def agregarDepartamentos():
+def nuevoDepartamento():
     if request.method == 'POST':
+        flash("Se ha creado un nuevo departamento !", "success")
         departamento = request.form['departamento']
         cursor = db.connection.cursor()
-        sql = """INSERT INTO departamentos (iddepartamento, departamento) VALUES 
-                    (null, '{}')""".format(departamento)
+        sql = """INSERT INTO departamentos (iddepartamento, departamento)
+                    VALUES (null, '{}')""".format(departamento)
         cursor.execute(sql)
-        flash('Se ha agregado un nuevo departamento !', 'success')
-        return redirect(url_for('panel/agregarDepartamentos'))
-    else:
-        return render_template('panel/agregarDepartamentos.html')
+        return redirect(url_for('departamentosPanel'))
+    
+@app.route('/deleteDepartamento/<int:id_data>', methods=['GET'])
+@login_required
+def deleteDepartamento(id_data):
+    flash("Departamento eliminado exitosamente !", "success")
+    cursor = db.connection.cursor()
+    sql = """ DELETE FROM departamentos WHERE iddepartamento='{}'""".format(id_data)
+    cursor.execute(sql)
+    return redirect(url_for('departamentosPanel'))
 
-
+@app.route('/updateDepartamento', methods=['GET', 'POST'])
+@login_required
+def updateDepartamento():
+    if request.method == 'POST':
+        flash("Departamento editado exitosamente !", "success")
+        id_data = request.form['id']
+        departamento = request.form['departamento']
+        cursor = db.connection.cursor()
+        sql = """UPDATE departamentos SET departamento='{}' 
+                    WHERE iddepartamento='{}' """.format(departamento, id_data)
+        cursor.execute(sql)
+        return redirect(url_for('departamentosPanel'))
 
 @app.route('/protected')
 @login_required
