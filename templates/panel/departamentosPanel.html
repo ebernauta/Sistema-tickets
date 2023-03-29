@@ -2,55 +2,147 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
-    <title>Panel de administración</title>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+  <title>Panel de administración</title>
 </head>
 
 <body>
-    <div class="text-center bg-dark-subtle">
-        <h1>Departamentos</h1>
+  <div class="text-center bg-dark-subtle">
+    <h1>Departamentos</h1>
+  </div>
+  <div class="container">
+    <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom ">
+      <a class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+        <img src="\static\img\logo.png" alt="logo" class="img-thumbnail" width="65" height="70">
+        <span class="fs-3">&nbsp;&nbsp;Bienvenido, {{current_user.fullname}}</span>
+      </a>
+      <ul class="nav">
+        <li class="nav-item m-1"><a href="{{url_for ('panelAdmin') }}" class="btn btn-secondary">Home</a></li>
+        <li class="nav-item m-1"><a href="{{ url_for ('logout') }}" class="btn btn-danger">Cerrar Sesión</a></li>
+      </ul>
+    </header>
+  </div>
+  {%with messages = get_flashed_messages(with_categories=True)%}
+  {%if messages%}
+  {% for categories, message in messages %}
+  <div class="container">
+    <div class="alert alert-{{categories}} alert-dismissable" role="alert">
+      {{message}}
     </div>
-    <div class="container">
-        <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom ">
-            <a class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
-                <img src="\static\img\logo.png" alt="logo" class="img-thumbnail" width="65" height="70">
-                <span class="fs-3">&nbsp;&nbsp;Bienvenido, {{current_user.fullname}}</span>
-            </a>
-          <ul class="nav">
-            <li class="nav-item m-1"><a href="{{url_for ('panelAdmin') }}" class="btn btn-secondary">Home</a></li>
-            <li class="nav-item m-1"><a href="{{ url_for ('logout') }}" class="btn btn-danger">Cerrar Sesión</a></li>
-          </ul>
-        </header>
-    </div>
-    <div class="text-center">
-        <ul style="list-style: none;">
-            <li><a href="{{url_for ('agregarDepartamentos') }}" class="btn btn-warning">Agregar nuevo departamento</a></li>
-        </ul>
-    </div>
-    <div class="container">
-        <table class="table table-secondary">
-            <thead>
-              <tr>
-                <th scope="col">#ID</th>
-                <th scope="col">Departamento</th>
-                <th scope="col">Acción</th>
-              </tr>
-            </thead>
-            <tbody>
-                {% for departamento in departamentos %}
-              <tr>
-                <th>{{departamento.0}}</th>
-                <td>{{departamento.1}}</td>
-                <td><a href="" class="btn btn-success">Editar</a>&nbsp;&nbsp;<a href="{ url_for('departamentosPanel'), {% set id = departamento[0] %} }" class="btn btn-danger">Eliminar</a></td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  </div>
+  {%endfor%}
+  {%endif%}
+  {%endwith%}
+  <div class="text-center">
+    <ul style="list-style: none;">
+      <li><a type="button" href="/newDepartamento" data-bs-target="#modalnewdepartment" class="btn btn-success"
+          data-bs-toggle="modal">Agregar nuevo departamento</a></li>
+    </ul>
+  </div>
+  <div class="container">
+    <table class="table table-secondary">
+      <thead>
+        <tr>
+          <th scope="col">#ID</th>
+          <th scope="col">Departamento</th>
+          <th scope="col">Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for departamento in departamentos %}
+        <tr>
+          <th>{{departamento.0}}</th>
+          <td>{{departamento.1}}</td>
+          <td>
+            <a href="/updateDepartamento" data-bs-target="#modaleditdepartament{{departamento.0}}"
+              class="btn btn-success" data-bs-toggle="modal">Editar</a>&nbsp;&nbsp;
+            <a href="/deleteDepartamento/{{departamento.0}}" class="btn btn-danger" data-bs-toggle="modal"
+              data-bs-target="#modaldeletedepartment{{departamento.0}}">Eliminar</a>
+          </td>
+        </tr>
+
+        <!--MODAL EDIT DEPARTMENT-->
+        <div>
+          <div id="modaleditdepartament{{departamento.0}}" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title text-primary" style="align-content: center;">Modificar usuario</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <form action="{{ url_for('updateDepartamento') }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="id" autocomplete="off" value="{{departamento.0}}">
+                    <div class="form-group">
+                      <label>Departamento</label>
+                      <input type="text" name="departamento" autocomplete="off" value="{{departamento.1}}"
+                        class="form-control">
+                    </div><br>
+                    <div class="text-center">
+                      <button type="submit" class="btn btn-success mb-2">Editar departamento</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!--MODAL DELETE DEPARTMENT-->
+        <div>
+          <div id="modaldeletedepartment{{departamento.0}}" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title text-danger" style="align-content: center;">Eliminar Departamento</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="text-center text-primary">
+                  <h5>¿Estas seguro de eliminar este departamento?</h5>
+                </div><br>
+                <a href="/deleteDepartamento/{{ departamento.0 }}" class="btn btn-danger btn-sm">Eliminar</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <!--MODAL NEW DEPARTMENT -->
+        <div>
+          <div id="modalnewdepartment" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title text-primary" style="align-content: center;">Agregar departamento</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <form action="{{ url_for('nuevoDepartamento') }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="id">
+                    <div class="form-group">
+                      <label>Departamento</label>
+                      <input type="text" name="departamento" autocomplete="off" class="form-control"
+                        placeholder="Ingrese nombre del departamento">
+                    </div><br>
+                    <div class="text-center">
+                      <button type="submit" class="btn btn-success mb-2">Agregar nuevo departamento</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
