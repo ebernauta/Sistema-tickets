@@ -54,4 +54,13 @@ class ModelUser():
             cursor.execute(sql)
         except Exception as ex:
             raise Exception(ex)
-            
+    
+    @classmethod
+    def editUser(self, db, username, password, fullname, id_data):
+        try:
+            cursor = db.connection.cursor()
+            sql = """ UPDATE user SET username='{}', password='{}', fullname='{}'
+                    WHERE id='{}'""".format(username, User.generatePasswordHash(password), fullname, id_data)
+            cursor.execute(sql)
+        except Exception as ex:
+            raise Exception(ex)
