@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_mysqldb import MySQL
 from flask_wtf import CSRFProtect
-from flask_login import LoginManager, login_user, logout_user, login_required
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 
 from config import config
 
@@ -22,7 +22,6 @@ login_manager_app = LoginManager(app)
 @login_manager_app.user_loader
 def load_user(id):
     return ModelUser.get_by_id(db, id)
-
 
 @app.route('/')
 def index():
@@ -63,72 +62,72 @@ def logout():
 
 
 
-@app.route('/nuevoTicket')
+@app.route('/nuevoTicket', methods=['GET', 'POST'])
 @login_required
-def nuevoticket():
-    return render_template('formularioTicket.html')
+def nuevoTicket():
+    cursor = db.connection.cursor()
+    departamentos = """ SELECT * FROM departamentos"""
+    cursor.execute(departamentos)
+    listaDepa = cursor.fetchall()
+    return render_template('formularioTicket.html', departamentos=listaDepa)
 
 @app.route('/home')
 @login_required
 def home():
     return render_template('home.html')
 
-# @app.route('/loginPanel', methods=['GET', 'POST'])
-# @login_required
-# def loginPanel():
-#     if request.method == 'POST':
-#         contraseñaPanel = request.form['contraseñaPanel']
-#         cursor = db.connection.cursor()
-#         sql = """SELECT panelAdmin FROM admin WHERE panelAdmin = '{}'""".format(contraseñaPanel)
-#         cursor.execute(sql)
-#         row = cursor.fetchone()
-#         if row != None:
-#             return redirect(url_for('panelAdmin'))
-#             print("debajo del redirect")
-#         else:
-#             flash("Contraseña maestra incorrecta...", 'danger')
-#             return render_template('auth/loginPanel.html')
-#     else:
-#         return render_template('auth/loginPanel.html') 
-
 @app.route('/panelAdministracion', methods=['GET', 'POST'])
 @login_required
 def panelAdmin():
-    return render_template('panel/panelAdmin.html')
+    if current_user.fullname == "ADMINISTRADOR" and request.method == "GET" or request.method == "POST":
+        return render_template('panel/panelAdmin.html')
+    else:
+        return "<h1>No tienes permiso de acceso a esta pagina</h1>"
     
    
 
 @app.route('/panelAdministracion/usuarios')
 @login_required
 def usuariosPanel():
-    listaUsuarios = ModelUser.allUsers(db)
-    print(listaUsuarios)
-    return render_template('panel/usuariosPanel.html', filas=listaUsuarios)
+    if current_user.fullname == "ADMINISTRADOR" and request.method == "GET" or request.method == "POST":
+        listaUsuarios = ModelUser.allUsers(db)
+        print(listaUsuarios)
+        return render_template('panel/usuariosPanel.html', filas=listaUsuarios)
+    else:
+        return "<h1>No tienes permiso de acceso a esta pagina</h1>"
+
 
 @app.route('/newUser', methods=['GET', 'POST'])
 @login_required
 def newUser():
-    if request.method == 'POST':
+    if current_user.fullname == "ADMINISTRADOR" and request.method == "GET" or request.method == "POST":
         flash("Se ha creado un nuevo usuario !", "success")
         username = request.form['username']
         password = request.form['password']
         fullname = request.form['fullname']
         nuevoUsuario = ModelUser.newUser(db, username, password, fullname)
         return redirect(url_for('usuariosPanel'))
+    else:
+        return "<h1>No tienes permiso de acceso a esta pagina</h1>"
+        
 
 
 @app.route('/delete/<int:id_data>', methods=['GET'])
 def deleteUsuario(id_data):
-    flash("Usuario eliminado exitosamente !", "success")
-    cursor = db.connection.cursor()
-    sql = """ DELETE FROM user WHERE id='{}'""".format(id_data)
-    cursor.execute(sql)
-    return redirect(url_for('usuariosPanel'))
+    if current_user.fullname == "ADMINISTRADOR" and request.method == "GET" or request.method == "POST":
+        flash("Usuario eliminado exitosamente !", "success")
+        cursor = db.connection.cursor()
+        sql = """ DELETE FROM user WHERE id='{}'""".format(id_data)
+        cursor.execute(sql)
+        return redirect(url_for('usuariosPanel'))
+    else:
+        return "<h1>No tienes permiso de acceso a esta pagina</h1>"
+        
 
 @app.route('/updateUsuario', methods=['POST', 'GET'])
 @login_required
 def updateUsuario():
-    if request.method == 'POST':
+    if current_user.fullname == "ADMINISTRADOR" and request.method == "GET" or request.method == "POST":
         flash("Usuario editado exitosamente !","success")
         id_data = request.form['id']
         username = request.form['username']
@@ -136,23 +135,30 @@ def updateUsuario():
         fullname = request.form['fullname']
         updateSql = ModelUser.editUser(db, username, password, fullname, id_data)
         return redirect(url_for('usuariosPanel'))
+    else:
+        return "<h1>No tienes permiso de acceso a esta pagina</h1>"
+        
         
         
 @app.route('/panelAdministracion/departamentos')
 @login_required
 def departamentosPanel():
-    cursor = db.connection.cursor()
-    sql = """SELECT * FROM departamentos"""
-    cursor.execute(sql)
-    listaDepartamentos = cursor.fetchall()
-    print(listaDepartamentos)
-    return render_template('panel/departamentosPanel.html', departamentos= listaDepartamentos)
+    if current_user.fullname == "ADMINISTRADOR" and request.method == "GET" or request.method == "POST":
+        cursor = db.connection.cursor()
+        sql = """SELECT * FROM departamentos"""
+        cursor.execute(sql)
+        listaDepartamentos = cursor.fetchall()
+        print(listaDepartamentos)
+        return render_template('panel/departamentosPanel.html', departamentos= listaDepartamentos)
+    else:
+        return "<h1>No tienes permiso de acceso a esta pagina</h1>"
+        
 
 
 @app.route('/newDepartamento', methods=['GET', 'POST'])
 @login_required
 def nuevoDepartamento():
-    if request.method == 'POST':
+    if current_user.fullname == "ADMINISTRADOR" and request.method == "GET" or request.method == "POST":
         flash("Se ha creado un nuevo departamento !", "success")
         departamento = request.form['departamento']
         cursor = db.connection.cursor()
@@ -160,20 +166,26 @@ def nuevoDepartamento():
                     VALUES (null, '{}')""".format(departamento)
         cursor.execute(sql)
         return redirect(url_for('departamentosPanel'))
+    else:
+        return "<h1>No tienes permiso de acceso a esta pagina</h1>"
     
 @app.route('/deleteDepartamento/<int:id_data>', methods=['GET'])
 @login_required
 def deleteDepartamento(id_data):
-    flash("Departamento eliminado exitosamente !", "success")
-    cursor = db.connection.cursor()
-    sql = """ DELETE FROM departamentos WHERE iddepartamento='{}'""".format(id_data)
-    cursor.execute(sql)
-    return redirect(url_for('departamentosPanel'))
+    if current_user.fullname == "ADMINISTRADOR" and request.method == "GET" or request.method == "POST":
+        flash("Departamento eliminado exitosamente !", "success")
+        cursor = db.connection.cursor()
+        sql = """ DELETE FROM departamentos WHERE iddepartamento='{}'""".format(id_data)
+        cursor.execute(sql)
+        return redirect(url_for('departamentosPanel'))
+    else:
+        return "<h1>No tienes permiso de acceso a esta pagina</h1>"
+        
 
 @app.route('/updateDepartamento', methods=['GET', 'POST'])
 @login_required
 def updateDepartamento():
-    if request.method == 'POST':
+    if current_user.fullname == "ADMINISTRADOR" and request.method == "GET" or request.method == "POST":
         flash("Departamento editado exitosamente !", "success")
         id_data = request.form['id']
         departamento = request.form['departamento']
@@ -182,6 +194,8 @@ def updateDepartamento():
                     WHERE iddepartamento='{}' """.format(departamento, id_data)
         cursor.execute(sql)
         return redirect(url_for('departamentosPanel'))
+    else:
+        return "<h1>No tienes permiso de acceso a esta pagina</h1>"
 
 @app.route('/protected')
 @login_required
