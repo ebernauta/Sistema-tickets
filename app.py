@@ -2,15 +2,17 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_mysqldb import MySQL
 from flask_wtf import CSRFProtect
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-
+from datetime import datetime
 from config import config
 
 # Models:
 from models.ModelUser import ModelUser
+from models.ModelTicket import ModelTicket 
 
 
 # Entities:
 from models.entities.User import User
+from models.entities.Ticket import Ticket
 
 
 app = Flask(__name__)
@@ -62,19 +64,45 @@ def logout():
 
 
 
-@app.route('/nuevoTicket', methods=['GET', 'POST'])
+@app.route('/home/nuevoTicket', methods=['GET', 'POST'])
 @login_required
 def nuevoTicket():
     cursor = db.connection.cursor()
-    departamentos = """ SELECT * FROM departamentos"""
-    cursor.execute(departamentos)
+    rowDepartamentos = """ SELECT * FROM departamentos"""
+    cursor.execute(rowDepartamentos)
     listaDepa = cursor.fetchall()
     return render_template('formularioTicket.html', departamentos=listaDepa)
+
+@app.route('/generarTicket', methods=['GET', 'POST'])
+@login_required
+def generarTicket():
+    if request.method == 'POST':
+        print("SE ENVIO EL FORMULARIO Y PASÉ POR EL POST")
+        cursor = db.connection.cursor()
+        user_id = current_user.id
+        user_fullname = current_user.fullname
+        departamento = request.form['departamento']
+        tipo_problema = request.form['tipoProblema']
+        descripcion = request.form['descripcion']
+        status = 'open'
+        create_at = datetime.now()
+        sql = """ INSERT INTO tickets (user_id, user_fullname, departamento, tipo_problema,
+                    descripcion, estado, created_at) VALUES 
+                    ('{}','{}','{}','{}','{}','{}', '{}')""".format(user_id, user_fullname ,departamento, tipo_problema,
+                                                            descripcion, status, create_at)
+        cursor.execute(sql)
+        return redirect(url_for('nuevoTicket'))
 
 @app.route('/home')
 @login_required
 def home():
-    return render_template('home.html')
+    cursor = db.connection.cursor()
+    sql = """SELECT id_ticket, user_fullname, departamento, tipo_problema, descripcion,
+                    estado, created_at from tickets WHERE user_id = '{}' """.format(current_user.id)
+    cursor.execute(sql)
+    row = cursor.fetchall()
+    print(row)
+    return render_template('home.html', tickets=row)
 
 @app.route('/panelAdministracion', methods=['GET', 'POST'])
 @login_required
