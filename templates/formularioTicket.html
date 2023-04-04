@@ -29,7 +29,7 @@
     </div>
     <div class="text-center">
         <ul style="list-style: none;">
-            <li><a type="button" href="/nuevoTicket" data-bs-target="#modalnewticket" data-bs-toggle="modal"
+            <li><a type="button" href="/generarTicket" data-bs-target="#modalnewticket" data-bs-toggle="modal"
                     class="btn btn-success">Crear un nuevo ticket</a></li>
         </ul>
     </div>
@@ -44,15 +44,23 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form action="{{ url_for('nuevoTicket') }}" method="POST">
+                        <form action="{{ url_for('generarTicket') }}" method="POST">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                            <label for="validationCustom04" class="form-label">Departamento</label>
-                            <select class="form-select" id="validationCustom04" name="departamento" required>
+                            <label for="departamento" class="form-label">Departamento</label>
+                            <select class="form-select" name="departamento" required>
                                 {% for departamento in departamentos%}
                                 <option>{{departamento.1}}</option>
                                 {% endfor %}
-                            </select>
-                            
+                            </select><br>
+                            <label for="tipoProblema" class="form-label">Tipo de problema</label>
+                            <select class="form-select" name="tipoProblema" id="tipoProblema" required>
+                                <option>Impresora</option>
+                                <option>Computadora</option>
+                            </select><br>
+                            <div class="form-floating">
+                                <textarea class="form-control" name="descripcion" id="floatingTextarea2" style="height: 100px"></textarea>
+                                <label for="floatingTextarea2">Descripción del problema</label>
+                            </div><br>
                             <div class="text-center">
                                 <button type="submit" class="btn btn-success mb-2">Generar ticket</button>
                             </div>
