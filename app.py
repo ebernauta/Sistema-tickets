@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_mysqldb import MySQL
 from flask_wtf import CSRFProtect
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
@@ -62,17 +62,6 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
-
-
-@app.route('/home/nuevoTicket', methods=['GET', 'POST'])
-@login_required
-def nuevoTicket():
-    cursor = db.connection.cursor()
-    rowDepartamentos = """ SELECT * FROM departamentos"""
-    cursor.execute(rowDepartamentos)
-    listaDepa = cursor.fetchall()
-    return render_template('formularioTicket.html', departamentos=listaDepa)
-
 @app.route('/generarTicket', methods=['GET', 'POST'])
 @login_required
 def generarTicket():
@@ -91,9 +80,9 @@ def generarTicket():
                     ('{}','{}','{}','{}','{}','{}', '{}')""".format(user_id, user_fullname ,departamento, tipo_problema,
                                                             descripcion, status, create_at)
         cursor.execute(sql)
-        return redirect(url_for('nuevoTicket'))
+        return redirect(url_for('home'))
 
-@app.route('/home')
+@app.route('/mis-tickets')
 @login_required
 def home():
     cursor = db.connection.cursor()
@@ -102,12 +91,32 @@ def home():
     cursor.execute(sql)
     row = cursor.fetchall()
     print(row)
-    return render_template('home.html', tickets=row)
+    rowDepartamentos = """ SELECT * FROM departamentos """
+    cursor.execute(rowDepartamentos)
+    listaDepa = cursor.fetchall()
+    print(listaDepa)
+    return render_template('home.html', tickets=row, departamentos=listaDepa)
 
+@app.route('/deleteTicket/<int:id_ticket>', methods=['GET'])
+@login_required
+def deleteTicket(id_ticket):
+    if request.method == 'GET':
+        flash("El ticket se ha eliminado exitosamente !", "success")
+        cursor = db.connection.cursor()
+        sql = """ DELETE FROM tickets WHERE id_ticket = '{} '""".format(id_ticket)
+        cursor.execute(sql)
+        return redirect(url_for('home'))
+    else:
+        return "<h1>Algo pasó</h1>"
+    
+    
+    
+    
 @app.route('/panelAdministracion', methods=['GET', 'POST'])
 @login_required
 def panelAdmin():
     if current_user.fullname == "ADMINISTRADOR" and request.method == "GET" or request.method == "POST":
+        
         return render_template('panel/panelAdmin.html')
     else:
         return "<h1>No tienes permiso de acceso a esta pagina</h1>"
@@ -238,6 +247,23 @@ def status_401(error):
 def status_404(error):
     return "<h1>Página no encontrada</h1>", 404
 
+@app.route('/dataTickets', methods=['GET'])
+@login_required
+def dataTickets():
+    cursor = db.connection.cursor()
+    sql = """SELECT id_ticket, user_id, user_fullname, departamento,
+            tipo_problema, descripcion, estado, created_at descripcion FROM tickets """
+    tickets = cursor.execute(sql)
+    data = cursor.fetchall()
+    response_data = {"data": []}
+    for row in data:
+        response_data["data"].append({"id_ticket": row[0], "user_id": row[1],
+                                      "user_fullname": row[2], "departamento": row[3],
+                                      "tipo_problema": row[4], "descripcion": row[5],
+                                      "estado": row[6], "created_at": row[7]})
+    return jsonify(response_data)
+    
+    
 
 app.register_error_handler(401, status_401)
 app.register_error_handler(404, status_404)
