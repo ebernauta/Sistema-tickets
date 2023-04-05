@@ -103,7 +103,7 @@ def deleteTicket(id_ticket):
     if request.method == 'GET':
         flash("El ticket se ha eliminado exitosamente !", "success")
         cursor = db.connection.cursor()
-        sql = """ DELETE FROM tickets WHERE id_ticket = '{} '""".format(id_ticket)
+        sql = """ DELETE FROM tickets WHERE id_ticket = '{}'""".format(id_ticket)
         cursor.execute(sql)
         return redirect(url_for('home'))
     else:
@@ -122,11 +122,27 @@ def panelAdmin():
         return "<h1>No tienes permiso de acceso a esta pagina</h1>"
     
    
-@app.route('/ver-ticket/<int:id_ticket>')
+@app.route('/ver-ticket/<int:id_ticket>', methods=['GET'])
 @login_required
-def verTicket():
-    if request.method == "POST":
-        return
+def verTicket(id_ticket):
+    cursor = db.connection.cursor()
+    sql = """ SELECT user_fullname, departamento, tipo_problema, descripcion, estado, 
+            created_at FROM tickets WHERE id_ticket = '{}' """.format(id_ticket)
+    ticket = cursor.execute(sql)
+    dataTicket = cursor.fetchone()
+    if dataTicket:
+        response_data = {
+            "user_fullname": dataTicket[0],
+            "departamento": dataTicket[1],
+            "tipo_problema": dataTicket[2],
+            "descripcion": dataTicket[3],
+            "estado": dataTicket[4],
+            "created_at": dataTicket[5]
+        }
+        return jsonify(response_data)
+    else:
+        return jsonify({"error": "Ticket no encontrado"})
+    
 
 @app.route('/panelAdministracion/usuarios')
 @login_required

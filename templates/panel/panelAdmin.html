@@ -54,20 +54,40 @@
     <!-- MODAL VIEW TICKET -->
     <div>
         <div id="modalverticket" class="modal fade" role="dialog">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title text-primary" style="align-content: center;">Ticket #ID </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body">
-                <form action="#" method="POST">
-                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                  <input type="hidden" name="id_ticket" autocomplete="off" value="">
-                </form>
-              </div>
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title text-primary" style="align-content: center;" >Ticket #ID </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="#" method="POST">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="id_ticket" autocomplete="off" value="">
+                            <div class="form-group">
+                                <label>Funcionario</label>
+                                <input type="text" name="funcionario" class="form-control"
+                                  id="funcionario" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label>Departamento</label>
+                                <input type="text" name="departamento" class="form-control"
+                                  id="departamento" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label>Descripcion</label>
+                                <textarea type="text" rows="15" name="descripcion" class="form-control"
+                                id="descripcion" disabled></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Estado del ticket</label>
+                                <textarea type="text" name="estado" class="form-control"
+                                id="estado" disabled></textarea>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
     </div>
     <script type="text/javascript">
@@ -102,9 +122,12 @@
                             }
                         }
                     },
-                    { "data": null, 
-                    "render": function (data, type, row) {
-                        return '<a class="btn btn-primary" href="/verTicket/' + row.id_ticket + '" data-bs-toggle="modal" data-bs-target="#modalverticket">Ver ticket</a>';} },
+                    {
+                        "data": null,
+                        "render": function (data, type, row) {
+                            return '<a class="btn btn-primary" href="/verTicket/' + row.id_ticket + '" data-bs-toggle="modal" data-bs-target="#modalverticket" data-ticket-id="' + row.id_ticket + '">Ver ticket</a>';
+                        }
+                    },
                     { "data": "created_at" },
                 ],
                 "language": {
@@ -126,6 +149,27 @@
                         "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
                         "sSortDescending": ": Activar para ordenar la columna de manera descendente"
                     }
+                }
+            });
+        });
+        $(document).on('click', '[data-bs-target="#modalverticket"]', function () {
+            var ticket_id = $(this).data('ticket-id');
+
+            // Hacer la petición AJAX para obtener los detalles del ticket correspondiente
+            $.ajax({
+                url: '/ver-ticket/' + ticket_id,
+                method: 'GET',
+                success: function (response) {
+                    console.log(response.descripcion)
+                    // Actualizar el contenido del modal con los detalles del ticket
+                    $('#modalverticket .modal-title').text('Ticket #ID ' + ticket_id);
+                    $('#funcionario').val(response.user_fullname);
+                    $('#departamento').val(response.departamento);
+                    $('#descripcion').text(response.descripcion);
+                    
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
                 }
             });
         });
