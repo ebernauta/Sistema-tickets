@@ -45,10 +45,30 @@
                     <th>Tipo de problema</th>
                     <th>Descripcion</th>
                     <th>Estado</th>
+                    <th>Acción</th>
                     <th>Generado</th>
                 </tr>
             </thead>
         </table>
+    </div>
+    <!-- MODAL VIEW TICKET -->
+    <div>
+        <div id="modalverticket" class="modal fade" role="dialog">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title text-primary" style="align-content: center;">Ticket #ID </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <form action="#" method="POST">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <input type="hidden" name="id_ticket" autocomplete="off" value="">
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
     </div>
     <script type="text/javascript">
         $(document).ready(function () {
@@ -60,19 +80,32 @@
                     { "data": "user_fullname" },
                     { "data": "departamento" },
                     { "data": "tipo_problema" },
-                    { "data": "descripcion",
-                    "render": function(data, type, row){
-                        if(type === 'display'){
-                            return data.length > 100 ?
-                                data.substr(0, 100) + '...' :
-                                data;
-                        } else {
-                            return data;
+                    {
+                        "data": "descripcion",
+                        "render": function (data, type, row) {
+                            if (type === 'display') {
+                                return data.length > 100 ?
+                                    data.substr(0, 100) + '...' :
+                                    data;
+                            } else {
+                                return data;
+                            }
                         }
-                    }
-                },
-                    { "data": "estado" },
-                    { "data": "created_at" }
+                    },
+                    {
+                        "data": "estado",
+                        "render": function (data, type, row) {
+                            if (data === 'Abierto') {
+                                return '<button class="btn btn-success" disabled>' + data + '</button>';
+                            } else {
+                                return '<button class="btn btn-danger" disabled> Cerrado </button>';
+                            }
+                        }
+                    },
+                    { "data": null, 
+                    "render": function (data, type, row) {
+                        return '<a class="btn btn-primary" href="/verTicket/' + row.id_ticket + '" data-bs-toggle="modal" data-bs-target="#modalverticket">Ver ticket</a>';} },
+                    { "data": "created_at" },
                 ],
                 "language": {
                     "sProcessing": "Procesando...",

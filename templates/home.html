@@ -46,8 +46,8 @@
     </div>
     <div class="card-body">
       <h5 class="card-title">Tipo de problema: {{ticket.3}} </h5>
-      <p class="card-text">Descripción: {{ticket.4}}</p>
-      {% if ticket.5 == 'open'%}
+      <p class="card-text"><b>Descripción:</b> {{ticket.4}}</p>
+      {% if ticket.5 == 'Abierto'%}
       <a href="#" class="btn btn-success">Estado del ticket: {{ticket.5}}</a>
       <a href="/deleteTicket/{{ticket.0}}" data-bs-target="#modaldeleteticket{{ticket.0}}" data-bs-toggle="modal"
         class="btn btn-danger">Cerrar ticket</a>
@@ -55,7 +55,7 @@
       <a class="btn btn-danger">Este ticket ha sido cerrado !</a>
       {%endif%}
     </div>
-    {% if ticket.5 == 'open'%}
+    {% if ticket.5 == 'Abierto'%}
     <div class="card-footer text-body-secondary">
       Ticket generado a las: {{ticket.6}}
     </div>

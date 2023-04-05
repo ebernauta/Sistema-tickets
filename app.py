@@ -73,7 +73,7 @@ def generarTicket():
         departamento = request.form['departamento']
         tipo_problema = request.form['tipoProblema']
         descripcion = request.form['descripcion']
-        status = 'open'
+        status = 'Abierto'
         create_at = datetime.now()
         sql = """ INSERT INTO tickets (user_id, user_fullname, departamento, tipo_problema,
                     descripcion, estado, created_at) VALUES 
@@ -122,6 +122,11 @@ def panelAdmin():
         return "<h1>No tienes permiso de acceso a esta pagina</h1>"
     
    
+@app.route('/ver-ticket/<int:id_ticket>')
+@login_required
+def verTicket():
+    if request.method == "POST":
+        return
 
 @app.route('/panelAdministracion/usuarios')
 @login_required
