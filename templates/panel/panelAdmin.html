@@ -25,14 +25,16 @@
                 <span class="fs-3">&nbsp;&nbsp;Bienvenido, {{current_user.fullname}}</span>
             </a>
             <ul class="nav">
-                <li class="nav-item m-1"><a href="{{url_for ('usuariosPanel') }}" class="btn btn-secondary">Usuarios</a>
-                </li>
+                <li class="nav-item m-1"><a href="{{url_for ('usuariosPanel') }}" class="btn btn-secondary">Usuarios</a></li>
                 <li class="nav-item m-1"><a href="{{ url_for ('departamentosPanel') }}"
                         class="btn btn-secondary">Departamentos</a></li>
-                <li class="nav-item m-1"><a href="{{ url_for ('logout') }}" class="btn btn-danger">Cerrar Sesión</a>
-                </li>
+                <li class="nav-item m-1"><a href="#" class="btn btn-success">Tickets Cerrados</a></li>
+                <li class="nav-item m-1"><a href="{{ url_for ('logout') }}" class="btn btn-danger">Cerrar Sesión</a></li>
             </ul>
         </header>
+    </div>
+    <div class="text-center">
+        <h1>Bandeja de tickets</h1>
     </div>
     <div class="container">
         <table id="miTabla">
@@ -42,7 +44,7 @@
                     <th>ID usuario</th>
                     <th>Funcionario</th>
                     <th>Departamento</th>
-                    <th>Tipo de problema</th>
+                    <th>Numero de contacto</th>
                     <th>Descripcion</th>
                     <th>Estado</th>
                     <th>Acción</th>
@@ -56,7 +58,7 @@
         <div id="modalverticket" class="modal fade" role="dialog">
             <div class="modal-dialog modal-xl">
                 <div class="modal-content">
-                    <div class="modal-header">
+                    <div class="modal-header text-center">
                         <h5 class="modal-title text-primary" style="align-content: center;" >Ticket #ID </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
@@ -68,22 +70,25 @@
                                 <label>Funcionario</label>
                                 <input type="text" name="funcionario" class="form-control"
                                   id="funcionario" disabled>
-                            </div>
+                            </div><br>
                             <div class="form-group">
                                 <label>Departamento</label>
                                 <input type="text" name="departamento" class="form-control"
                                   id="departamento" disabled>
-                            </div>
+                            </div><br>
                             <div class="form-group">
                                 <label>Descripcion</label>
-                                <textarea type="text" rows="15" name="descripcion" class="form-control"
+                                <textarea type="text" rows="10" name="descripcion" class="form-control"
                                 id="descripcion" disabled></textarea>
-                            </div>
+                            </div><br>
                             <div class="form-group">
-                                <label>Estado del ticket</label>
-                                <textarea type="text" name="estado" class="form-control"
-                                id="estado" disabled></textarea>
-                            </div>
+                                <label>Numero de contacto</label>
+                                <input type="text" id="numero_contacto" name="numero_contacto" class="form-control" disabled>
+                            </div><br>
+                            <div class="form-group">
+                                <label>Responder ticket</label>
+                                <textarea type="text" rows="5" name="respuestaTicket" class="form-control"></textarea>
+                            </div><br>
                         </form>
                     </div>
                 </div>
@@ -99,7 +104,7 @@
                     { "data": "user_id" },
                     { "data": "user_fullname" },
                     { "data": "departamento" },
-                    { "data": "tipo_problema" },
+                    { "data": "numero_contacto" },
                     {
                         "data": "descripcion",
                         "render": function (data, type, row) {
@@ -160,12 +165,14 @@
                 url: '/ver-ticket/' + ticket_id,
                 method: 'GET',
                 success: function (response) {
-                    console.log(response.descripcion)
+
                     // Actualizar el contenido del modal con los detalles del ticket
                     $('#modalverticket .modal-title').text('Ticket #ID ' + ticket_id);
                     $('#funcionario').val(response.user_fullname);
                     $('#departamento').val(response.departamento);
                     $('#descripcion').text(response.descripcion);
+                    $('#estado').val(response.estado);
+                    $('#numero_contacto').val(response.numero_contacto)
                     
                 },
                 error: function (xhr, status, error) {

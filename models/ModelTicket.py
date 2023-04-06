@@ -6,7 +6,7 @@ class ModelTicket():
     def get_tickets_by_user(self, db, current_user_id):
         try:
             cursor = db.connection.cursor()
-            sql = """SELECT id_ticket, departamento, tipo_problema, descripcion,
+            sql = """SELECT id_ticket, departamento, numero_contacto, descripcion,
                     estado, created_at from tickets WHERE user_id = '{}' """.format(current_user_id)
             cursor.execute(sql)
             row = cursor.fetchall()

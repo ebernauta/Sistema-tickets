@@ -45,7 +45,7 @@
       TICKET ID: #{{ticket.0}}
     </div>
     <div class="card-body">
-      <h5 class="card-title">Tipo de problema: {{ticket.3}} </h5>
+      <h5 class="card-title">Numero de contacto: {{ticket.3}} </h5>
       <p class="card-text"><b>Descripción:</b> {{ticket.4}}</p>
       {% if ticket.5 == 'Abierto'%}
       <a href="#" class="btn btn-success">Estado del ticket: {{ticket.5}}</a>
@@ -65,6 +65,7 @@
     </div>
     {% endif%}
   </div><br>
+
   <!-- MODAL DELETE TICKET -->
   <div>
     <div id="modaldeleteticket{{ ticket.0 }}" class="modal fade" role="dialog">
@@ -103,11 +104,8 @@
                 <option>{{departamento.1}}</option>
                 {% endfor %}
               </select><br>
-              <label for="tipoProblema" class="form-label">Tipo de problema</label>
-              <select class="form-select" name="tipoProblema" id="tipoProblema" required>
-                <option>Impresora</option>
-                <option>Computadora</option>
-              </select><br>
+              <label for="numeroContacto" class="form-label">Numero de contacto</label>
+              <input type="text" class="form-control" name="numeroContacto"><br>
               <div class="form-floating">
                 <textarea class="form-control" name="descripcion" id="floatingTextarea2"
                   style="height: 100px"></textarea>

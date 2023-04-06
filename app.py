@@ -71,13 +71,13 @@ def generarTicket():
         user_id = current_user.id
         user_fullname = current_user.fullname
         departamento = request.form['departamento']
-        tipo_problema = request.form['tipoProblema']
+        numeroContacto = request.form['numeroContacto']
         descripcion = request.form['descripcion']
         status = 'Abierto'
         create_at = datetime.now()
-        sql = """ INSERT INTO tickets (user_id, user_fullname, departamento, tipo_problema,
+        sql = """ INSERT INTO tickets (user_id, user_fullname, departamento, numero_contacto,
                     descripcion, estado, created_at) VALUES 
-                    ('{}','{}','{}','{}','{}','{}', '{}')""".format(user_id, user_fullname ,departamento, tipo_problema,
+                    ('{}','{}','{}','{}','{}','{}', '{}')""".format(user_id, user_fullname ,departamento, numeroContacto,
                                                             descripcion, status, create_at)
         cursor.execute(sql)
         return redirect(url_for('home'))
@@ -86,7 +86,7 @@ def generarTicket():
 @login_required
 def home():
     cursor = db.connection.cursor()
-    sql = """SELECT id_ticket, user_fullname, departamento, tipo_problema, descripcion,
+    sql = """SELECT id_ticket, user_fullname, departamento, numero_contacto, descripcion,
                     estado, created_at from tickets WHERE user_id = '{}' """.format(current_user.id)
     cursor.execute(sql)
     row = cursor.fetchall()
@@ -126,7 +126,7 @@ def panelAdmin():
 @login_required
 def verTicket(id_ticket):
     cursor = db.connection.cursor()
-    sql = """ SELECT user_fullname, departamento, tipo_problema, descripcion, estado, 
+    sql = """ SELECT user_fullname, departamento, numero_contacto, descripcion, estado, 
             created_at FROM tickets WHERE id_ticket = '{}' """.format(id_ticket)
     ticket = cursor.execute(sql)
     dataTicket = cursor.fetchone()
@@ -134,7 +134,7 @@ def verTicket(id_ticket):
         response_data = {
             "user_fullname": dataTicket[0],
             "departamento": dataTicket[1],
-            "tipo_problema": dataTicket[2],
+            "numero_contacto": dataTicket[2],
             "descripcion": dataTicket[3],
             "estado": dataTicket[4],
             "created_at": dataTicket[5]
@@ -273,14 +273,14 @@ def status_404(error):
 def dataTickets():
     cursor = db.connection.cursor()
     sql = """SELECT id_ticket, user_id, user_fullname, departamento,
-            tipo_problema, descripcion, estado, created_at descripcion FROM tickets """
+            numero_contacto, descripcion, estado, created_at descripcion FROM tickets """
     tickets = cursor.execute(sql)
     data = cursor.fetchall()
     response_data = {"data": []}
     for row in data:
         response_data["data"].append({"id_ticket": row[0], "user_id": row[1],
                                       "user_fullname": row[2], "departamento": row[3],
-                                      "tipo_problema": row[4], "descripcion": row[5],
+                                      "numero_contacto": row[4], "descripcion": row[5],
                                       "estado": row[6], "created_at": row[7]})
     return jsonify(response_data)
     
