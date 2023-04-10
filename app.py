@@ -4,6 +4,7 @@ from flask_wtf import CSRFProtect
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from datetime import datetime
 from config import config
+import json
 
 # Models:
 from models.ModelUser import ModelUser
@@ -75,10 +76,11 @@ def generarTicket():
         descripcion = request.form['descripcion']
         status = 'Abierto'
         create_at = datetime.now()
+        respuestas = []
         sql = """ INSERT INTO tickets (user_id, user_fullname, departamento, numero_contacto,
-                    descripcion, estado, created_at) VALUES 
-                    ('{}','{}','{}','{}','{}','{}', '{}')""".format(user_id, user_fullname ,departamento, numeroContacto,
-                                                            descripcion, status, create_at)
+                    descripcion, estado, created_at, respuestas) VALUES 
+                    ('{}','{}','{}','{}','{}','{}', '{}', '{}')""".format(user_id, user_fullname ,departamento, numeroContacto,
+                                                            descripcion, status, create_at, respuestas)
         cursor.execute(sql)
         return redirect(url_for('home'))
 
@@ -117,32 +119,30 @@ def deleteTicket(id_ticket):
 def panelAdmin():
     if current_user.fullname == "ADMINISTRADOR" and request.method == "GET" or request.method == "POST":
         
-        return render_template('panel/panelAdmin.html')
+        return render_template('panel/panelAdmin.html', current_user_fullname= current_user.fullname)
     else:
         return "<h1>No tienes permiso de acceso a esta pagina</h1>"
     
-   
-@app.route('/ver-ticket/<int:id_ticket>', methods=['GET'])
+@app.route('/enviar_respuesta', methods=['POST'])
 @login_required
-def verTicket(id_ticket):
+def enviar_respuesta():
     cursor = db.connection.cursor()
-    sql = """ SELECT user_fullname, departamento, numero_contacto, descripcion, estado, 
-            created_at FROM tickets WHERE id_ticket = '{}' """.format(id_ticket)
-    ticket = cursor.execute(sql)
-    dataTicket = cursor.fetchone()
-    if dataTicket:
-        response_data = {
-            "user_fullname": dataTicket[0],
-            "departamento": dataTicket[1],
-            "numero_contacto": dataTicket[2],
-            "descripcion": dataTicket[3],
-            "estado": dataTicket[4],
-            "created_at": dataTicket[5]
-        }
-        return jsonify(response_data)
-    else:
-        return jsonify({"error": "Ticket no encontrado"})
-    
+    respuesta = request.form['respuesta']
+    hora_respuesta = request.form['hora_respuesta']
+    id_ticket = request.form['id_ticket']
+    print(respuesta)
+    print(id_ticket)
+    print("Apreteé el boton enviarrrrrr !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    respuesta_dict = {
+        'respuesta': respuesta,
+        'hora_respuesta': hora_respuesta,
+        'user': current_user.fullname
+    }
+    respuesta_json = json.dumps(respuesta_dict)
+    sql = " UPDATE tickets SET respuestas = JSON_ARRAY_APPEND(respuestas, '$', %s) WHERE id_ticket = %s"
+    cursor.execute(sql, (respuesta_json, id_ticket))
+    return jsonify({'message': 'Mensaje enviado correctamente'})
+
 
 @app.route('/panelAdministracion/usuarios')
 @login_required
@@ -255,11 +255,6 @@ def updateDepartamento():
     else:
         return "<h1>No tienes permiso de acceso a esta pagina</h1>"
 
-@app.route('/protected')
-@login_required
-def protected():
-    return "<h1>Esta es una vista protegida, solo para usuarios autenticados.</h1>"
-
 
 def status_401(error):
     return redirect(url_for('login'))
@@ -273,7 +268,7 @@ def status_404(error):
 def dataTickets():
     cursor = db.connection.cursor()
     sql = """SELECT id_ticket, user_id, user_fullname, departamento,
-            numero_contacto, descripcion, estado, created_at descripcion FROM tickets """
+            numero_contacto, descripcion, estado, created_at, respuestas descripcion FROM tickets """
     tickets = cursor.execute(sql)
     data = cursor.fetchall()
     response_data = {"data": []}
@@ -281,10 +276,30 @@ def dataTickets():
         response_data["data"].append({"id_ticket": row[0], "user_id": row[1],
                                       "user_fullname": row[2], "departamento": row[3],
                                       "numero_contacto": row[4], "descripcion": row[5],
-                                      "estado": row[6], "created_at": row[7]})
+                                      "estado": row[6], "created_at": row[7], "respuestas": row[8]})
     return jsonify(response_data)
     
-    
+@app.route('/ver-ticket/<int:id_ticket>', methods=['GET'])
+@login_required
+def verTicket(id_ticket):
+    cursor = db.connection.cursor()
+    sql = """ SELECT user_fullname, departamento, numero_contacto, descripcion, estado, 
+            created_at, respuestas FROM tickets WHERE id_ticket = '{}' """.format(id_ticket)
+    ticket = cursor.execute(sql)
+    dataTicket = cursor.fetchone()
+    if dataTicket:
+        response_data = {
+            "user_fullname": dataTicket[0],
+            "departamento": dataTicket[1],
+            "numero_contacto": dataTicket[2],
+            "descripcion": dataTicket[3],
+            "estado": dataTicket[4],
+            "created_at": dataTicket[5],
+            "respuestas": dataTicket[6]
+        }
+        return jsonify(response_data)
+    else:
+        return jsonify({"error": "Ticket no encontrado"})
 
 app.register_error_handler(401, status_401)
 app.register_error_handler(404, status_404)
