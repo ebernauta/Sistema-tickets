@@ -67,7 +67,6 @@ def logout():
 @login_required
 def generarTicket():
     if request.method == 'POST':
-        print("SE ENVIO EL FORMULARIO Y PASÉ POR EL POST")
         cursor = db.connection.cursor()
         user_id = current_user.id
         user_fullname = current_user.fullname
@@ -91,12 +90,10 @@ def home():
     sql = """SELECT id_ticket, user_fullname, departamento, numero_contacto, descripcion,
                     estado, created_at from tickets WHERE user_id = '{}' """.format(current_user.id)
     cursor.execute(sql)
-    row = cursor.fetchall()
-    print(row)
+    row = cursor.fetchall() 
     rowDepartamentos = """ SELECT * FROM departamentos """
     cursor.execute(rowDepartamentos)
     listaDepa = cursor.fetchall()
-    print(listaDepa)
     return render_template('home.html', tickets=row, departamentos=listaDepa)
 
 @app.route('/deleteTicket/<int:id_ticket>', methods=['GET'])
@@ -145,7 +142,6 @@ def enviar_respuesta():
 def usuariosPanel():
     if current_user.fullname == "ADMINISTRADOR" and request.method == "GET" or request.method == "POST":
         listaUsuarios = ModelUser.allUsers(db)
-        print(listaUsuarios)
         return render_template('panel/usuariosPanel.html', filas=listaUsuarios)
     else:
         return "<h1>No tienes permiso de acceso a esta pagina</h1>"
@@ -202,7 +198,6 @@ def departamentosPanel():
         sql = """SELECT * FROM departamentos"""
         cursor.execute(sql)
         listaDepartamentos = cursor.fetchall()
-        print(listaDepartamentos)
         return render_template('panel/departamentosPanel.html', departamentos= listaDepartamentos)
     else:
         return "<h1>No tienes permiso de acceso a esta pagina</h1>"
@@ -284,7 +279,6 @@ def verTicket(id_ticket):
     ticket = cursor.execute(sql)
     dataTicket = cursor.fetchone()
     if dataTicket:
-        print(dataTicket)
         response_data = {
             "user_fullname": dataTicket[0],
             "departamento": dataTicket[1],

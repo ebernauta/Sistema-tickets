@@ -175,10 +175,19 @@
                             const mensaje = response[i].mensaje;
                             const hora_mensaje = response[i].hora_mensaje;
                             const user = response[i].user;
-                            const message = `<div class="message received"><p><span class="sender">${user}:</span> ${mensaje}</p><span class="timestamp">${hora_mensaje}</span></div>`;
-                            container.innerHTML += message;
-                            console.log(message)
-                        }
+                            let message;
+                            switch(user) {
+                              case 'ADMINISTRADOR':
+                                message = `<div class="message sent"><p><span class="sender">${user}:</span> ${mensaje}</p><span class="timestamp">${hora_mensaje}</span></div>`;
+                                container.innerHTML += message;
+                                console.log('ESTO ES UN MENSAJE DE ' +user);
+                                break;
+                              default:
+                                message = `<div class="message received"><p><span class="sender">${user}:</span> ${mensaje}</p><span class="timestamp">${hora_mensaje}</span></div>`;
+                                container.innerHTML += message;
+                                break;
+                            }
+                          }
 
                         // Hacer scroll hacia abajo para mostrar los mensajes recién cargados
                         container.scrollTop = container.scrollHeight;
