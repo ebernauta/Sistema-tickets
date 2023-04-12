@@ -51,8 +51,8 @@
       <h5 class="card-title">Numero de contacto: {{ticket.3}} </h5>
       <p class="card-text"><b>Descripción:</b> {{ticket.4}}</p>
       {% if ticket.5 == 'Abierto'%}
-      <a href="/ver-ticket/{{ticket.0}}" class="btn btn-success" data-ticket-id="{{ticket.0}}" data-bs-target="#modalverticket"
-        data-bs-toggle="modal">Estado del ticket: {{ticket.5}}</a>
+      <a href="/ver-ticket/{{ticket.0}}" class="btn btn-success" data-ticket-id="{{ticket.0}}"
+        data-bs-target="#modalverticket" data-bs-toggle="modal">Estado del ticket: {{ticket.5}}</a>
       <a href="/deleteTicket/{{ticket.0}}" data-bs-target="#modaldeleteticket{{ticket.0}}" data-bs-toggle="modal"
         class="btn btn-danger">Cerrar ticket</a>
       {% else %}
@@ -186,18 +186,15 @@
               const hora_mensaje = response[i].hora_mensaje;
               const user = response[i].user;
               let message;
-              console.log(user)
-              switch (user) {
-                case 'ADMINISTRADOR':
-                  message = `<div class="message sent"><p><span class="sender">${user}:</span> ${mensaje}</p><span class="timestamp">${hora_mensaje}</span></div>`;
-                  container.innerHTML += message;
-                  console.log('ESTO ES UN MENSAJE DE ' + user);
-                  break;
-                default:
-                  message = `<div class="message sent" style="float: right;"><p><span class="sender">${user}:</span> ${mensaje}</p><span class="timestamp">${hora_mensaje}</span></div>`;
-                  container.innerHTML += message;
-                  console.log('ESTO ES UN MENSAJE DE ' +user)
-                  break;
+
+              if (user === 'ADMINISTRADOR') {
+                message = `<div class="message sent"><p><span class="sender">${user}:</span> ${mensaje}</p><span class="timestamp">${hora_mensaje}</span></div>`;
+                container.innerHTML += message;
+                console.log('ESTO ES UN MENSAJE DE ' + user);
+              } else {
+                message = `<div class="message sent" style="float: right;"><p><span class="sender">${user}:</span> ${mensaje}</p><span class="timestamp">${hora_mensaje}</span></div>`;
+                container.innerHTML += message;
+                console.log('ESTO ES UN MENSAJE DE ' + user)
               }
             }
 
@@ -209,32 +206,32 @@
           },
         });
       }
+    });
 
-      // Agregar el evento click al botón "Ver ticket"
-      $(document).on('click', '[data-ticket-id]', function () {
-        var ticket_id = $(this).data('ticket-id');
+    // Agregar el evento click al botón "Ver ticket"
+    $(document).on('click', '[data-ticket-id]', function () {
+      var ticket_id = $(this).data('ticket-id');
 
-        // Hacer la petición AJAX para obtener los detalles del ticket correspondiente
-        $.ajax({
-          url: '/ver-ticket/' + ticket_id,
-          method: 'GET',
-          success: function (response) {
-            // Actualizar el contenido del modal con los detalles del ticket
-            $('#modalverticket .modal-title').text('Ticket #ID ' + ticket_id);
-            $('#funcionario').val(response.user_fullname);
-            $('#departamento').val(response.departamento);
-            $('#descripcion').text(response.descripcion);
-            $('#estado').val(response.estado);
-            $('#numero_contacto').val(response.numero_contacto)
-            $('#id_ticket').val(ticket_id);
+      // Hacer la petición AJAX para obtener los detalles del ticket correspondiente
+      $.ajax({
+        url: '/ver-ticket/' + ticket_id,
+        method: 'GET',
+        success: function (response) {
+          // Actualizar el contenido del modal con los detalles del ticket
+          $('#modalverticket .modal-title').text('Ticket #ID ' + ticket_id);
+          $('#funcionario').val(response.user_fullname);
+          $('#departamento').val(response.departamento);
+          $('#descripcion').text(response.descripcion);
+          $('#estado').val(response.estado);
+          $('#numero_contacto').val(response.numero_contacto)
+          $('#id_ticket').val(ticket_id);
 
-            // Cargar los mensajes de chat para la ID del ticket especificada
-            cargarMensajes(ticket_id);
-          },
-          error: function (xhr, status, error) {
-            console.log(error);
-          }
-        });
+          // Cargar los mensajes de chat para la ID del ticket especificada
+          cargarMensajes(ticket_id);
+        },
+        error: function (xhr, status, error) {
+          console.log(error);
+        }
       });
     });
     const container = document.getElementById('chat-container');
