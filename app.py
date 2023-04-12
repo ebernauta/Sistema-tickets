@@ -75,12 +75,12 @@ def generarTicket():
         numeroContacto = request.form['numeroContacto']
         descripcion = request.form['descripcion']
         status = 'Abierto'
+        chat = []
         create_at = datetime.now()
-        respuestas = []
         sql = """ INSERT INTO tickets (user_id, user_fullname, departamento, numero_contacto,
-                    descripcion, estado, created_at, respuestas) VALUES 
+                    descripcion, estado, created_at, chat) VALUES 
                     ('{}','{}','{}','{}','{}','{}', '{}', '{}')""".format(user_id, user_fullname ,departamento, numeroContacto,
-                                                            descripcion, status, create_at, respuestas)
+                                                            descripcion, status, create_at, chat)
         cursor.execute(sql)
         return redirect(url_for('home'))
 
@@ -122,26 +122,22 @@ def panelAdmin():
         return render_template('panel/panelAdmin.html', current_user_fullname= current_user.fullname)
     else:
         return "<h1>No tienes permiso de acceso a esta pagina</h1>"
-    
+
 @app.route('/enviar_respuesta', methods=['POST'])
 @login_required
 def enviar_respuesta():
     cursor = db.connection.cursor()
-    respuesta = request.form['respuesta']
-    hora_respuesta = request.form['hora_respuesta']
+    mensaje = request.form['mensaje']
+    hora_mensaje = request.form['hora_mensaje']
     id_ticket = request.form['id_ticket']
-    print(respuesta)
-    print(id_ticket)
-    print("Apreteé el boton enviarrrrrr !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-    respuesta_dict = {
-        'respuesta': respuesta,
-        'hora_respuesta': hora_respuesta,
-        'user': current_user.fullname
-    }
-    respuesta_json = json.dumps(respuesta_dict)
-    sql = " UPDATE tickets SET respuestas = JSON_ARRAY_APPEND(respuestas, '$', %s) WHERE id_ticket = %s"
-    cursor.execute(sql, (respuesta_json, id_ticket))
+    usuario = current_user.fullname
+    sql = "INSERT INTO mensajes (id_ticket, mensaje, hora_mensaje, user) VALUES (%s, %s, %s, %s)"
+    cursor.execute(sql, (id_ticket, mensaje, hora_mensaje, usuario))
+    db.connection.commit()  # Confirmar los cambios
+    cursor.close()  # Cerrar el cursor
     return jsonify({'message': 'Mensaje enviado correctamente'})
+
+
 
 
 @app.route('/panelAdministracion/usuarios')
@@ -268,7 +264,7 @@ def status_404(error):
 def dataTickets():
     cursor = db.connection.cursor()
     sql = """SELECT id_ticket, user_id, user_fullname, departamento,
-            numero_contacto, descripcion, estado, created_at, respuestas descripcion FROM tickets """
+            numero_contacto, descripcion, estado, created_at, chat descripcion FROM tickets """
     tickets = cursor.execute(sql)
     data = cursor.fetchall()
     response_data = {"data": []}
@@ -276,7 +272,7 @@ def dataTickets():
         response_data["data"].append({"id_ticket": row[0], "user_id": row[1],
                                       "user_fullname": row[2], "departamento": row[3],
                                       "numero_contacto": row[4], "descripcion": row[5],
-                                      "estado": row[6], "created_at": row[7], "respuestas": row[8]})
+                                      "estado": row[6], "created_at": row[7], "chat": row[8]})
     return jsonify(response_data)
     
 @app.route('/ver-ticket/<int:id_ticket>', methods=['GET'])
@@ -284,10 +280,11 @@ def dataTickets():
 def verTicket(id_ticket):
     cursor = db.connection.cursor()
     sql = """ SELECT user_fullname, departamento, numero_contacto, descripcion, estado, 
-            created_at, respuestas FROM tickets WHERE id_ticket = '{}' """.format(id_ticket)
+            created_at, chat FROM tickets WHERE id_ticket = '{}' """.format(id_ticket)
     ticket = cursor.execute(sql)
     dataTicket = cursor.fetchone()
     if dataTicket:
+        print(dataTicket)
         response_data = {
             "user_fullname": dataTicket[0],
             "departamento": dataTicket[1],
@@ -295,11 +292,25 @@ def verTicket(id_ticket):
             "descripcion": dataTicket[3],
             "estado": dataTicket[4],
             "created_at": dataTicket[5],
-            "respuestas": dataTicket[6]
+            "chat": dataTicket[6]
         }
         return jsonify(response_data)
     else:
         return jsonify({"error": "Ticket no encontrado"})
+    
+@app.route('/obtener_mensajes/<int:id_ticket>', methods=['GET'])
+@login_required
+def obtener_mensajes(id_ticket):
+    cursor = db.connection.cursor()
+    cursor.execute("SELECT * FROM mensajes WHERE id_ticket = %s", (id_ticket,))
+    mensajes = cursor.fetchall()
+    cursor.close()
+    if mensajes:
+        mensajes_json = [{'mensaje': m[1], 'hora_mensaje': m[2], 'user': m[3]} for m in mensajes]
+        return jsonify(mensajes_json)
+    else:
+        return jsonify({"Error": "Creo que no hemos encontrado lo que buscamos"})
+
 
 app.register_error_handler(401, status_401)
 app.register_error_handler(404, status_404)
