@@ -183,7 +183,7 @@
                                 console.log('ESTO ES UN MENSAJE DE ' +user);
                                 break;
                               default:
-                                message = `<div class="message received"><p><span class="sender">${user}:</span> ${mensaje}</p><span class="timestamp">${hora_mensaje}</span></div>`;
+                                message = `<div class="message sent" style="float: right;><p><span class="sender"><b>${user}</b>:</span> ${mensaje}</p><span class="timestamp">${hora_mensaje}</span></div>`;
                                 container.innerHTML += message;
                                 break;
                             }
