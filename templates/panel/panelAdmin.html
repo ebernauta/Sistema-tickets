@@ -84,6 +84,7 @@
                             <input type="text" id="numero_contacto" name="numero_contacto" class="form-control"
                                 disabled>
                         </div><br>
+                        <h2 class="text-primary" style="text-align: center;">Chat de soporte</h2>
                         <div id="chat-container"></div><br>
                         <div class="container">
                             <form id="chat-form">
@@ -237,7 +238,7 @@
             const timestamp = new Date().toLocaleString();
 
             // Crear elemento de mensaje con el valor ingresado, el remitente y la fecha de envío
-            const message = `<div class="message sent"><p><span class="sender">${user}:</span> ${mensaje}</p><span class="timestamp">${timestamp}</span></div>`;
+            const message = `<div class="message sent"><p><span class="sender"><b>${user}</b>:</span> ${mensaje}</p><span class="timestamp">${timestamp}</span></div>`;
             console.log(user)
             // Agregar elemento de mensaje al contenedor
             container.innerHTML += message;

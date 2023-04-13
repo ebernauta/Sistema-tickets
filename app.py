@@ -297,7 +297,7 @@ def verTicket(id_ticket):
 @login_required
 def obtener_mensajes(id_ticket):
     cursor = db.connection.cursor()
-    cursor.execute("SELECT * FROM mensajes WHERE id_ticket = %s", (id_ticket,))
+    cursor.execute("SELECT * FROM mensajes WHERE id_ticket = %s ", (id_ticket,))
     mensajes = cursor.fetchall()
     cursor.close()
     if mensajes:
@@ -312,4 +312,4 @@ app.register_error_handler(404, status_404)
 app.config.from_object(config['development'])
 csrf.init_app(app)
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)
