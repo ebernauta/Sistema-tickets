@@ -74,12 +74,12 @@ def generarTicket():
         numeroContacto = request.form['numeroContacto']
         descripcion = request.form['descripcion']
         status = 'Abierto'
-        chat = []
+        tipo_problema = ''
         create_at = datetime.now()
         sql = """ INSERT INTO tickets (user_id, user_fullname, departamento, numero_contacto,
-                    descripcion, estado, created_at, chat) VALUES 
+                    descripcion, estado, created_at, tipo_problema) VALUES 
                     ('{}','{}','{}','{}','{}','{}', '{}', '{}')""".format(user_id, user_fullname ,departamento, numeroContacto,
-                                                            descripcion, status, create_at, chat)
+                                                            descripcion, status, create_at, tipo_problema)
         cursor.execute(sql)
         return redirect(url_for('home'))
 
@@ -115,8 +115,29 @@ def deleteTicket(id_ticket):
 @login_required
 def panelAdmin():
     if current_user.fullname == "ADMINISTRADOR" and request.method == "GET" or request.method == "POST":
+        cursor = db.connection.cursor()
+        sql = "SELECT * FROM problemas"
+        cursor.execute(sql)
+        row = cursor.fetchall()
         
-        return render_template('panel/panelAdmin.html', current_user_fullname= current_user.fullname)
+        if request.method == 'POST':
+            tipo_problema = request.form['tipo_problema']
+            nuevo_problema = request.form['otro_tipo_problema']
+            id_ticket = request.form['id_ticket']
+            if nuevo_problema == '':
+                print("pues, no agregó otro tipo de problema")
+                sql = "UPDATE tickets SET tipo_problema = '{}' WHERE id_ticket = '{}'".format(tipo_problema, id_ticket)
+                cursor.execute(sql)
+                
+                return redirect(url_for('panelAdmin'))
+            else:
+                sql = "INSERT INTO problemas (problema) VALUES ('{}')".format(nuevo_problema)
+                cursor.execute(sql)
+                sql = "UPDATE tickets SET tipo_problema = '{}' WHERE id_ticket = '{}'".format(nuevo_problema, id_ticket)
+                cursor.execute(sql)
+                
+                return redirect(url_for('panelAdmin'))
+        return render_template('panel/panelAdmin.html', current_user_fullname= current_user.fullname, problemas=row)
     else:
         return "<h1>No tienes permiso de acceso a esta pagina</h1>"
 
@@ -260,7 +281,7 @@ def status_404(error):
 def dataTickets():
     cursor = db.connection.cursor()
     sql = """SELECT id_ticket, user_id, user_fullname, departamento,
-            numero_contacto, descripcion, estado, created_at, chat descripcion FROM tickets """
+            numero_contacto, descripcion, estado, created_at, tipo_problema descripcion FROM tickets """
     tickets = cursor.execute(sql)
     data = cursor.fetchall()
     response_data = {"data": []}
@@ -268,7 +289,7 @@ def dataTickets():
         response_data["data"].append({"id_ticket": row[0], "user_id": row[1],
                                       "user_fullname": row[2], "departamento": row[3],
                                       "numero_contacto": row[4], "descripcion": row[5],
-                                      "estado": row[6], "created_at": row[7], "chat": row[8]})
+                                      "estado": row[6], "created_at": row[7], "tipo_problema": row[8]})
     return jsonify(response_data)
     
 @app.route('/ver-ticket/<int:id_ticket>', methods=['GET'])
@@ -276,7 +297,7 @@ def dataTickets():
 def verTicket(id_ticket):
     cursor = db.connection.cursor()
     sql = """ SELECT user_fullname, departamento, numero_contacto, descripcion, estado, 
-            created_at, chat FROM tickets WHERE id_ticket = '{}' """.format(id_ticket)
+            created_at, tipo_problema FROM tickets WHERE id_ticket = '{}' """.format(id_ticket)
     ticket = cursor.execute(sql)
     dataTicket = cursor.fetchone()
     if dataTicket:
@@ -287,7 +308,7 @@ def verTicket(id_ticket):
             "descripcion": dataTicket[3],
             "estado": dataTicket[4],
             "created_at": dataTicket[5],
-            "chat": dataTicket[6]
+            "tipo_problema": dataTicket[6]
         }
         return jsonify(response_data)
     else:
@@ -297,11 +318,11 @@ def verTicket(id_ticket):
 @login_required
 def obtener_mensajes(id_ticket):
     cursor = db.connection.cursor()
-    cursor.execute("SELECT * FROM mensajes WHERE id_ticket = %s ", (id_ticket,))
+    cursor.execute("SELECT * FROM mensajes WHERE id_ticket = '{}' order by str_to_date(hora_mensaje, '%%Y-%%m-%%d %%H:%%i:%%s') asc".format(id_ticket))
     mensajes = cursor.fetchall()
     cursor.close()
     if mensajes:
-        mensajes_json = [{'mensaje': m[1], 'hora_mensaje': m[2], 'user': m[3]} for m in mensajes]
+        mensajes_json = [{'mensaje': m[1], 'hora_mensaje': m[2], 'user': m[3]} for m in mensajes[::-1]]
         return jsonify(mensajes_json)
     else:
         return jsonify({"Error": "Creo que no hemos encontrado lo que buscamos"})
@@ -312,4 +333,5 @@ app.register_error_handler(404, status_404)
 app.config.from_object(config['development'])
 csrf.init_app(app)
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    #app.run(host='0.0.0.0', port=5000)
+    app.run()
