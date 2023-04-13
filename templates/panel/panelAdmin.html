@@ -178,7 +178,7 @@
                             let message;
                             message = `<div class="message sent"><p><span class="sender"><b>${user}</b>:</span> ${mensaje}</p><span class="timestamp">${hora_mensaje}</span></div>`;
                             container.innerHTML += message;
-                          }
+                        }
 
                         // Hacer scroll hacia abajo para mostrar los mensajes recién cargados
                         container.scrollTop = container.scrollHeight;
@@ -207,6 +207,8 @@
                         $('#numero_contacto').val(response.numero_contacto)
                         $('#id_ticket').val(ticket_id);
 
+                        //Limpia contenido del chat cada vez que se cargen los msg
+                        container.innerHTML = '';
                         // Cargar los mensajes de chat para la ID del ticket especificada
                         cargarMensajes(ticket_id);
                     },
@@ -236,7 +238,7 @@
 
             // Crear elemento de mensaje con el valor ingresado, el remitente y la fecha de envío
             const message = `<div class="message sent"><p><span class="sender">${user}:</span> ${mensaje}</p><span class="timestamp">${timestamp}</span></div>`;
-
+            console.log(user)
             // Agregar elemento de mensaje al contenedor
             container.innerHTML += message;
 

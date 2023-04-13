@@ -94,7 +94,7 @@ def home():
     rowDepartamentos = """ SELECT * FROM departamentos """
     cursor.execute(rowDepartamentos)
     listaDepa = cursor.fetchall()
-    return render_template('home.html', tickets=row, departamentos=listaDepa)
+    return render_template('home.html', tickets=row, departamentos=listaDepa, current_user_fullname= current_user.fullname)
 
 @app.route('/deleteTicket/<int:id_ticket>', methods=['GET'])
 @login_required
@@ -133,6 +133,7 @@ def enviar_respuesta():
     db.connection.commit()  # Confirmar los cambios
     cursor.close()  # Cerrar el cursor
     return jsonify({'message': 'Mensaje enviado correctamente'})
+
 
 
 
