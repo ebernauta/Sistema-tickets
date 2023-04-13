@@ -176,68 +176,60 @@
   <script>
     $(document).ready(function () {
       function cargarMensajes(id_ticket) {
-        $.ajax({
-          type: 'GET',
-          url: '/obtener_mensajes/' + id_ticket, // Agregar una barra diagonal antes de la variable
-          success: function (response) {
-            // Procesar la respuesta del servidor (los mensajes)
-            for (let i = 0; i < response.length; i++) {
-              const mensaje = response[i].mensaje;
-              const hora_mensaje = response[i].hora_mensaje;
-              const user = response[i].user;
-              let message;
+          $.ajax({
+              type: 'GET',
+              url: '/obtener_mensajes/' + id_ticket, // Agregar una barra diagonal antes de la variable
+              success: function (response) {
+                  // Procesar la respuesta del servidor (los mensajes)
+                  for (let i = 0; i < response.length; i++) {
+                      const mensaje = response[i].mensaje;
+                      const hora_mensaje = response[i].hora_mensaje;
+                      const user = response[i].user;
+                      let message;
+                      message = `<div class="message sent"><p><span class="sender"><b>${user}</b>:</span> ${mensaje}</p><span class="timestamp">${hora_mensaje}</span></div>`;
+                      container.innerHTML += message;
+                    }
 
-              if (user === 'ADMINISTRADOR') {
-                message = `<div class="message sent"><p><span class="sender">${user}:</span> ${mensaje}</p><span class="timestamp">${hora_mensaje}</span></div>`;
-                container.innerHTML += message;
-                console.log('ESTO ES UN MENSAJE DE ' + user);
-              } else {
-                message = `<div class="message sent" style="float: right;"><p><span class="sender">${user}:</span> ${mensaje}</p><span class="timestamp">${hora_mensaje}</span></div>`;
-                container.innerHTML += message;
-                console.log('ESTO ES UN MENSAJE DE ' + user)
-              }
-            }
-
-            // Hacer scroll hacia abajo para mostrar los mensajes recién cargados
-            container.scrollTop = container.scrollHeight;
-          },
-          error: function (error) {
-            console.log(error);
-          },
-        });
+                  // Hacer scroll hacia abajo para mostrar los mensajes recién cargados
+                  container.scrollTop = container.scrollHeight;
+              },
+              error: function (error) {
+                  console.log(error);
+              },
+          });
       }
-    });
 
-    // Agregar el evento click al botón "Ver ticket"
-    $(document).on('click', '[data-ticket-id]', function () {
-      var ticket_id = $(this).data('ticket-id');
+      // Agregar el evento click al botón "Ver ticket"
+      $(document).on('click', '[data-bs-target="#modalverticket"]', function () {
+          var ticket_id = $(this).data('ticket-id');
 
-      // Hacer la petición AJAX para obtener los detalles del ticket correspondiente
-      $.ajax({
-        url: '/ver-ticket/' + ticket_id,
-        method: 'GET',
-        success: function (response) {
-          // Actualizar el contenido del modal con los detalles del ticket
-          $('#modalverticket .modal-title').text('Ticket #ID ' + ticket_id);
-          $('#funcionario').val(response.user_fullname);
-          $('#departamento').val(response.departamento);
-          $('#descripcion').text(response.descripcion);
-          $('#estado').val(response.estado);
-          $('#numero_contacto').val(response.numero_contacto)
-          $('#id_ticket').val(ticket_id);
+          // Hacer la petición AJAX para obtener los detalles del ticket correspondiente
+          $.ajax({
+              url: '/ver-ticket/' + ticket_id,
+              method: 'GET',
+              success: function (response) {
+                  // Actualizar el contenido del modal con los detalles del ticket
+                  $('#modalverticket .modal-title').text('Ticket #ID ' + ticket_id);
+                  $('#funcionario').val(response.user_fullname);
+                  $('#departamento').val(response.departamento);
+                  $('#descripcion').text(response.descripcion);
+                  $('#estado').val(response.estado);
+                  $('#numero_contacto').val(response.numero_contacto)
+                  $('#id_ticket').val(ticket_id);
 
-          // Cargar los mensajes de chat para la ID del ticket especificada
-          cargarMensajes(ticket_id);
-        },
-        error: function (xhr, status, error) {
-          console.log(error);
-        }
+                  // Cargar los mensajes de chat para la ID del ticket especificada
+                  cargarMensajes(ticket_id);
+              },
+              error: function (xhr, status, error) {
+                  console.log(error);
+              }
+          });
       });
-    });
-    const container = document.getElementById('chat-container');
-    let user = '{{current_user_fullname}}';
+  });
+  const container = document.getElementById('chat-container');
+  let user = '{{current_user_fullname}}';
 
-    $('#chat-form').submit(function (event) {
+  $('#chat-form').submit(function (event) {
       event.preventDefault();
 
       // Obtener valor del campo de entrada
@@ -245,8 +237,8 @@
 
       // Validar que el campo de entrada no esté vacío
       if (mensaje.trim() === '') {
-        alert('El campo de mensaje no puede estar vacío.');
-        return;
+          alert('El campo de mensaje no puede estar vacío.');
+          return;
       }
 
       // Obtener la fecha y hora actual
@@ -272,19 +264,19 @@
       // Enviar los datos del formulario al servidor utilizando AJAX
       const form_data = $(this).serialize();
       $.ajax({
-        type: 'POST',
-        url: '/enviar_respuesta',
-        data: form_data,
-        success: function (response) {
-          console.log(response);
-        },
-        error: function (error) {
-          console.log(error);
-        },
+          type: 'POST',
+          url: '/enviar_respuesta',
+          data: form_data,
+          success: function (response) {
+              console.log(response);
+          },
+          error: function (error) {
+              console.log(error);
+          },
       });
       // Limpiar campo de entrada
       $('#mensaje').val('');
-    });
+  });
 
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
