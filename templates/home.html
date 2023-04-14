@@ -55,11 +55,16 @@
         data-bs-target="#modalverticket" data-bs-toggle="modal">Estado del ticket: {{ticket.5}}</a>
       <a href="/deleteTicket/{{ticket.0}}" data-bs-target="#modaldeleteticket{{ticket.0}}" data-bs-toggle="modal"
         class="btn btn-danger">Eliminar ticket</a>
+      {% elif ticket.5 == 'Pendiente'%}
+      <a href="/ver-ticket/{{ticket.0}}" class="btn btn-warning" data-ticket-id="{{ticket.0}}"
+        data-bs-target="#modalverticket" data-bs-toggle="modal">Estado del ticket: {{ticket.5}}</a>
+      <a href="/deleteTicket/{{ticket.0}}" data-bs-target="#modaldeleteticket{{ticket.0}}" data-bs-toggle="modal"
+        class="btn btn-danger">Eliminar ticket</a>
       {% else %}
       <a class="btn btn-danger">Este ticket ha sido cerrado !</a>
       {%endif%}
     </div>
-    {% if ticket.5 == 'Abierto'%}
+    {% if ticket.5 == 'Abierto' or ticket.5 == 'Pendiente' %}
     <div class="card-footer text-body-secondary">
       Ticket generado a las: {{ticket.6}}
     </div>

@@ -73,7 +73,7 @@ def generarTicket():
         departamento = request.form['departamento']
         numeroContacto = request.form['numeroContacto']
         descripcion = request.form['descripcion']
-        status = 'Abierto'
+        status = 'Pendiente'
         tipo_problema = ''
         create_at = datetime.now()
         sql = """ INSERT INTO tickets (user_id, user_fullname, departamento, numero_contacto,
@@ -88,7 +88,7 @@ def generarTicket():
 def home():
     cursor = db.connection.cursor()
     sql = """SELECT id_ticket, user_fullname, departamento, numero_contacto, descripcion,
-                    estado, created_at from tickets WHERE user_id = '{}' """.format(current_user.id)
+                estado, created_at FROM tickets WHERE user_id = '{}' ORDER BY created_at DESC""".format(current_user.id)
     cursor.execute(sql)
     row = cursor.fetchall() 
     rowDepartamentos = """ SELECT * FROM departamentos """

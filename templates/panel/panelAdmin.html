@@ -30,8 +30,6 @@
                 </li>
                 <li class="nav-item m-1"><a href="{{ url_for ('departamentosPanel') }}"
                         class="btn btn-secondary">Departamentos</a></li>
-                <li class="nav-item m-1"><a href="#" class="btn btn-warning">Tickets Pendientes</a></li>
-                <li class="nav-item m-1"><a href="#" class="btn btn-success">Tickets Cerrados</a></li>
                 <li class="nav-item m-1"><a href="{{ url_for ('logout') }}" class="btn btn-danger">Cerrar Sesión</a>
                 </li>
             </ul>
@@ -166,7 +164,10 @@
                         "render": function (data, type, row) {
                             if (data === 'Abierto') {
                                 return '<button class="btn btn-success" disabled>' + data + '</button>';
-                            } else {
+                            }else if (data == 'Pendiente'){
+                                return '<button class="btn btn-warning" disabled>' + data + '</button>';
+
+                            }else {
                                 return '<button class="btn btn-danger" disabled> Cerrado </button>';
                             }
                         }
@@ -272,6 +273,13 @@
             // Validar que el campo de entrada no esté vacío
             if (mensaje.trim() === '') {
                 alert('El campo de mensaje no puede estar vacío.');
+                return;
+            }
+            
+            const campo_otro_tipo_problema = $('#otro_tipo_problema').val();
+
+            if (campo_otro_tipo_problema.trim() == ''){
+                alert('El campo de especificar tipo de problema no puede estar vacio')
                 return;
             }
 
