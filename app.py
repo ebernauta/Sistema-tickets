@@ -114,12 +114,11 @@ def deleteTicket(id_ticket):
 @app.route('/panelAdministracion', methods=['GET', 'POST'])
 @login_required
 def panelAdmin():
-    if current_user.fullname == "ADMINISTRADOR" and request.method == "GET" or request.method == "POST":
+    if current_user.fullname == "ADMINISTRADOR" and (request.method == "GET" or request.method == "POST"):
         cursor = db.connection.cursor()
         sql = "SELECT * FROM problemas"
         cursor.execute(sql)
         row = cursor.fetchall()
-        
         if request.method == 'POST':
             tipo_problema = request.form['tipo_problema']
             nuevo_problema = request.form['otro_tipo_problema']
@@ -128,16 +127,14 @@ def panelAdmin():
                 print("pues, no agregó otro tipo de problema")
                 sql = "UPDATE tickets SET tipo_problema = '{}' WHERE id_ticket = '{}'".format(tipo_problema, id_ticket)
                 cursor.execute(sql)
-                
                 return redirect(url_for('panelAdmin'))
             else:
                 sql = "INSERT INTO problemas (problema) VALUES ('{}')".format(nuevo_problema)
                 cursor.execute(sql)
                 sql = "UPDATE tickets SET tipo_problema = '{}' WHERE id_ticket = '{}'".format(nuevo_problema, id_ticket)
                 cursor.execute(sql)
-                
                 return redirect(url_for('panelAdmin'))
-        return render_template('panel/panelAdmin.html', current_user_fullname= current_user.fullname, problemas=row)
+        return render_template('panel/panelAdmin.html', current_user_fullname=current_user.fullname, problemas=row)
     else:
         return "<h1>No tienes permiso de acceso a esta pagina</h1>"
 
@@ -334,4 +331,4 @@ app.config.from_object(config['development'])
 csrf.init_app(app)
 if __name__ == '__main__':
     #app.run(host='0.0.0.0', port=5000)
-    app.run()
+    app.run(debug=True)

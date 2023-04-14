@@ -30,6 +30,7 @@
                 </li>
                 <li class="nav-item m-1"><a href="{{ url_for ('departamentosPanel') }}"
                         class="btn btn-secondary">Departamentos</a></li>
+                <li class="nav-item m-1"><a href="#" class="btn btn-warning">Tickets Pendientes</a></li>
                 <li class="nav-item m-1"><a href="#" class="btn btn-success">Tickets Cerrados</a></li>
                 <li class="nav-item m-1"><a href="{{ url_for ('logout') }}" class="btn btn-danger">Cerrar Sesión</a>
                 </li>
@@ -88,12 +89,15 @@
                         <div class="form-group">
                             <form action="{{ url_for('panelAdmin') }}" method="POST">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                <input type="hidden" name="id_ticket" autocomplete="off" id="id_ticket">
+                                <input type="hidden" name="id_ticket" id="ticketID" autocomplete="off">
                                 <label for="tipo_problema">Tipo de problema</label>
-                                <select class="form-select" aria-label="Default select example" name="tipo_problema"
-                                    required>
+                                <select class="form-select" aria-label="Default select example" name="tipo_problema" id="tipo_problema" required>
                                     {% for problema in problemas %}
-                                    <option>{{problema.1}}</option>
+                                        {% if problema.1 == tipo_problema %}
+                                            <option value="{{ problema.1 }}" selected>{{ problema.1 }}</option>
+                                        {% else %}
+                                            <option value="{{ problema.1 }}">{{ problema.1 }}</option>
+                                        {% endif %}
                                     {% endfor %}
                                     <option value="otro">Otro</option>
                                 </select><br>
@@ -225,7 +229,7 @@
             // Agregar el evento click al botón "Ver ticket"
             $(document).on('click', '[data-bs-target="#modalverticket"]', function () {
                 var ticket_id = $(this).data('ticket-id');
-
+            
                 // Hacer la petición AJAX para obtener los detalles del ticket correspondiente
                 $.ajax({
                     url: '/ver-ticket/' + ticket_id,
@@ -239,7 +243,11 @@
                         $('#estado').val(response.estado);
                         $('#numero_contacto').val(response.numero_contacto)
                         $('#id_ticket').val(ticket_id);
-
+                        $('#ticketID').val(ticket_id);
+            
+                        // Asignar el valor de response.tipo_problema al select
+                        $('#tipo_problema').val(response.tipo_problema);
+            
                         //Limpia contenido del chat cada vez que se cargen los msg
                         container.innerHTML = '';
                         // Cargar los mensajes de chat para la ID del ticket especificada
