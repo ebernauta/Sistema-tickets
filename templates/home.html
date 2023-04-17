@@ -6,7 +6,11 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css"
+    href="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.10.23/b-1.6.5/b-html5-1.6.5/fc-3.3.2/fh-3.1.8/datatables.min.css" />
   <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+  <script type="text/javascript"
+    src="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.10.23/b-1.6.5/b-html5-1.6.5/fc-3.3.2/fh-3.1.8/datatables.min.js"></script>
   <link rel="stylesheet" href="{{ url_for ('static', filename='/css/chat.css')}}">
   <title>Sistema de ticket</title>
 </head>
@@ -22,8 +26,6 @@
         <span class="fs-3">&nbsp;&nbsp;Bienvenido, {{current_user.fullname}}</span>
       </a>
       <ul class="nav">
-        <li class="nav-item m-1"><a href="{{url_for ('home') }}" class="btn btn-secondary" aria-current="page">Mis
-            tickets</a></li>
         <li class="nav-item m-1"><a href="/generarTicket" data-bs-target="#modalnewticket" data-bs-toggle="modal"
             class="btn btn-secondary" aria-current="page">Crear ticket</a></li>
         <li class="nav-item m-1"><a href="{{ url_for ('logout') }}" class="btn btn-danger">Cerrar Sesión</a></li>
@@ -41,39 +43,26 @@
     {%endif%}
     {%endwith%}
   </div>
-
-  {% for ticket in tickets %}
-  <div class="card text-center container">
-    <div class="card-header">
-      TICKET ID: #{{ticket.0}}
-    </div>
-    <div class="card-body">
-      <h5 class="card-title">Numero de contacto: {{ticket.3}} </h5>
-      <p class="card-text"><b>Descripción:</b> {{ticket.4}}</p>
-      {% if ticket.5 == 'Abierto'%}
-      <a href="/ver-ticket/{{ticket.0}}" class="btn btn-success" data-ticket-id="{{ticket.0}}"
-        data-bs-target="#modalverticket" data-bs-toggle="modal">Estado del ticket: {{ticket.5}}</a>
-      <a href="/deleteTicket/{{ticket.0}}" data-bs-target="#modaldeleteticket{{ticket.0}}" data-bs-toggle="modal"
-        class="btn btn-danger">Eliminar ticket</a>
-      {% elif ticket.5 == 'Pendiente'%}
-      <a href="/ver-ticket/{{ticket.0}}" class="btn btn-warning" data-ticket-id="{{ticket.0}}"
-        data-bs-target="#modalverticket" data-bs-toggle="modal">Estado del ticket: {{ticket.5}}</a>
-      <a href="/deleteTicket/{{ticket.0}}" data-bs-target="#modaldeleteticket{{ticket.0}}" data-bs-toggle="modal"
-        class="btn btn-danger">Eliminar ticket</a>
-      {% else %}
-      <a class="btn btn-danger">Este ticket ha sido cerrado !</a>
-      {%endif%}
-    </div>
-    {% if ticket.5 == 'Abierto' or ticket.5 == 'Pendiente' %}
-    <div class="card-footer text-body-secondary">
-      Ticket generado a las: {{ticket.6}}
-    </div>
-    {% else%}
-    <div class="card-footer text-body-secondary">
-      Ticket finalizado a las: {{ticket.6}}
-    </div>
-    {% endif%}
-  </div><br>
+  <div class="text-center">
+    <h1>Mis tickets</h1>
+    <input type="hidden" name="user_id" id="user_id" value="{{current_user.id}}" disabled>
+  </div>
+  <div class="container">
+    <table id="miTabla">
+      <thead>
+        <tr>
+          <th>#ID ticket</th>
+          <th>Funcionario</th>
+          <th>Departamento</th>
+          <th>Numero de contacto</th>
+          <th>Descripcion</th>
+          <th>Estado</th>
+          <th>Acción</th>
+          <th>Generado</th>
+        </tr>
+      </thead>
+    </table>
+  </div>
 
   <!-- MODAL VIEW TICKET -->
   <div>
@@ -81,30 +70,30 @@
       <div class="modal-dialog modal-xl">
         <div class="modal-content">
           <div class="modal-header text-center">
-            <h5 class="modal-title text-primary" style="align-content: center;">Ticket #ID {{ticket.0}}</h5>
+            <h5 class="modal-title text-primary" style="align-content: center;">Ticket #ID </h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
             <div class="form-group">
               <label>Funcionario</label>
-              <input type="text" name="funcionario" class="form-control" id="funcionario" value="{{ticket.1}}" disabled>
+              <input type="text" name="funcionario" class="form-control" id="funcionario" disabled>
             </div><br>
             <div class="form-group">
               <label>Departamento</label>
-              <input type="text" name="departamento" class="form-control" id="departamento" value="{{ticket.2}}"
-                disabled>
+              <input type="text" name="departamento" class="form-control" id="departamento" disabled>
             </div><br>
             <div class="form-group">
               <label>Descripcion</label>
               <textarea type="text" rows="10" name="descripcion" class="form-control" id="descripcion"
-                disabled>{{ticket.4}}</textarea>
+                disabled></textarea>
             </div><br>
             <div class="form-group">
               <label>Numero de contacto</label>
-              <input type="text" id="numero_contacto" name="numero_contacto" class="form-control" value="{{ticket.3}}"
-                disabled>
+              <input type="text" id="numero_contacto" name="numero_contacto" class="form-control" disabled>
             </div><br>
-            <h2 class="text-primary" style="text-align: center;">Chat de soporte</h2>
+            <div>
+              <h2 class="text-primary" style="text-align: center;">Chat de soporte</h2>
+            </div><br>
             <div id="chat-container"></div><br>
             <div class="container">
               <form id="chat-form">
@@ -123,27 +112,6 @@
       </div>
     </div>
   </div>
-
-
-  <!-- MODAL DELETE TICKET -->
-  <div>
-    <div id="modaldeleteticket{{ ticket.0 }}" class="modal fade" role="dialog">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title text-danger" style="align-content: center;">Cerrar Ticket</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="text-center text-primary">
-            <h5>¿Estas seguro de que desea cerrar este ticket?</h5>
-          </div><br>
-          <a href="/deleteTicket/{{ ticket.0 }}" class="btn btn-danger btn-sm">Cerrar ticket</a>
-        </div>
-      </div>
-    </div>
-  </div>
-  {% endfor%}
-
   <!--MODAL NEW TICKET -->
 
   <div>
@@ -179,7 +147,95 @@
       </div>
     </div>
   </div>
+  <!-- MODAL DELETE TICKET -->
+  {% for ticket in tickets%}
+  <div>
+    <div id="modaldeleteticket{{ ticket.0 }}" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title text-danger" style="align-content: center;">Cerrar Ticket</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="text-center text-primary">
+            <h5>¿Estas seguro de que desea cerrar este ticket?</h5>
+          </div><br>
+          <a href="/deleteTicket/{{ ticket.0 }}" class="btn btn-danger btn-sm">Cerrar ticket</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor%}
   <script>
+    var id_ticket = $("input[name='user_id']").val();
+    console.log(id_ticket)
+    $(document).ready(function () {
+      $('#miTabla').DataTable({
+        "ajax": "/ticketUser/" + id_ticket,
+        "columns": [
+          { "data": "id_ticket" },
+          { "data": "user_fullname" },
+          { "data": "departamento" },
+          { "data": "numero_contacto" },
+          {
+            "data": "descripcion",
+            "render": function (data, type, row) {
+              if (type === 'display') {
+                return data.length > 100 ?
+                  data.substr(0, 100) + '...' :
+                  data;
+              } else {
+                return data;
+              }
+            }
+          },
+          {
+            "data": "estado",
+            "render": function (data, type, row) {
+              if (data === 'Abierto') {
+                return '<button class="btn btn-success" disabled>' + data + '</button>';
+              } else if (data == 'Pendiente') {
+                return '<button class="btn btn-warning" disabled>' + data + '</button>';
+
+              } else {
+                return '<button class="btn btn-danger" disabled> Cerrado </button>';
+              }
+            }
+          },
+          {
+            "data": null,
+            "render": function (data, type, row) {
+              return '<div class="btn-group">' +
+                '<a class="btn btn-primary btn-sm mr-2" href="/verTicket/' + row.id_ticket + '" data-bs-toggle="modal" data-bs-target="#modalverticket" data-ticket-id="' + row.id_ticket + '">Ver ticket</a>' +
+                '<button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modaldeleteticket' + row.id_ticket + '">Eliminar ticket</button>' +
+                '</div>';
+            }
+          },
+          { "data": "created_at" }
+        ],
+        "language": {
+          "sProcessing": "Procesando...",
+          "sLengthMenu": "Mostrar _MENU_ registros por pagina",
+          "sZeroRecords": "No se encontraron resultados",
+          "sEmptyTable": "No hay registros de tickets en la tabla",
+          "sInfo": "Mostrando registros de _START_ al _END_ de un total de _TOTAL_ registros",
+          "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+          "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+          "sSearch": "Buscar:",
+          "oPaginate": {
+            "sFirst": "Primero",
+            "sLast": "Ultimo",
+            "sNext": "Siguiente",
+            "sPrevious": "Anterior"
+          },
+          "oAria": {
+            "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+            "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+          }
+        }
+      });
+    });
+
     $(document).ready(function () {
       function cargarMensajes(id_ticket) {
         $.ajax({
