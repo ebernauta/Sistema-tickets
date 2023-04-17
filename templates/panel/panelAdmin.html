@@ -89,19 +89,21 @@
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <input type="hidden" name="id_ticket" id="ticketID" autocomplete="off">
                                 <label for="tipo_problema">Tipo de problema</label>
-                                <select class="form-select" aria-label="Default select example" name="tipo_problema" id="tipo_problema" required>
+                                <select class="form-select" aria-label="Default select example" name="tipo_problema"
+                                    id="tipo_problema" required>
                                     {% for problema in problemas %}
-                                        {% if problema.1 == tipo_problema %}
-                                            <option value="{{ problema.1 }}" selected>{{ problema.1 }}</option>
-                                        {% else %}
-                                            <option value="{{ problema.1 }}">{{ problema.1 }}</option>
-                                        {% endif %}
+                                    {% if problema.1 == tipo_problema %}
+                                    <option value="{{ problema.1 }}" selected>{{ problema.1 }}</option>
+                                    {% else %}
+                                    <option value="{{ problema.1 }}">{{ problema.1 }}</option>
+                                    {% endif %}
                                     {% endfor %}
                                     <option value="otro">Otro</option>
                                 </select><br>
                                 <div class="form-group" id="otro-problema" style="display:none;">
                                     <label for="otro_tipo_problema">Especifique el tipo de problema</label>
-                                    <input type="text" class="form-control" id="otro_tipo_problema" name="otro_tipo_problema">
+                                    <input type="text" class="form-control" id="otro_tipo_problema"
+                                        name="otro_tipo_problema">
                                 </div><br>
                                 <button type="submit" class="btn btn-success">Actualizar tipo problema</button>
                             </form>
@@ -128,14 +130,27 @@
         </div>
     </div>
     <script type="text/javascript">
-        var select = document.querySelector('select[name="tipo_problema"]');
-        var otroProblema = document.querySelector('#otro-problema');
-        select.addEventListener('change', function () {
-            if (select.value == 'otro') {
-                otroProblema.style.display = 'block';
-            } else {
-                otroProblema.style.display = 'none';
-            }
+        $(document).ready(function () {
+            var select = document.querySelector('select[name="tipo_problema"]');
+            var otroProblema = document.querySelector('#otro-problema');
+            select.addEventListener('change', function () {
+                if (select.value == 'otro') {
+                    setTimeout(function () {
+                        otroProblema.style.display = 'block';
+                    }, 10);
+                } else {
+                    otroProblema.style.display = 'none';
+                }
+            });
+
+            var btnActualizar = $('button[type="submit"]');
+            btnActualizar.on('click', function (event) {
+                var inputProblema = $('#otro_tipo_problema').val().trim();
+                if (select.value == 'otro' && inputProblema == '') {
+                    event.preventDefault();
+                    alert('El campo de especificar tipo de problema no puede estar vacio');
+                }
+            });
         });
 
         $(document).ready(function () {
@@ -164,10 +179,10 @@
                         "render": function (data, type, row) {
                             if (data === 'Abierto') {
                                 return '<button class="btn btn-success" disabled>' + data + '</button>';
-                            }else if (data == 'Pendiente'){
+                            } else if (data == 'Pendiente') {
                                 return '<button class="btn btn-warning" disabled>' + data + '</button>';
 
-                            }else {
+                            } else {
                                 return '<button class="btn btn-danger" disabled> Cerrado </button>';
                             }
                         }
@@ -230,7 +245,7 @@
             // Agregar el evento click al botón "Ver ticket"
             $(document).on('click', '[data-bs-target="#modalverticket"]', function () {
                 var ticket_id = $(this).data('ticket-id');
-            
+
                 // Hacer la petición AJAX para obtener los detalles del ticket correspondiente
                 $.ajax({
                     url: '/ver-ticket/' + ticket_id,
@@ -245,10 +260,10 @@
                         $('#numero_contacto').val(response.numero_contacto)
                         $('#id_ticket').val(ticket_id);
                         $('#ticketID').val(ticket_id);
-            
+
                         // Asignar el valor de response.tipo_problema al select
                         $('#tipo_problema').val(response.tipo_problema);
-            
+
                         //Limpia contenido del chat cada vez que se cargen los msg
                         container.innerHTML = '';
                         // Cargar los mensajes de chat para la ID del ticket especificada
@@ -275,13 +290,7 @@
                 alert('El campo de mensaje no puede estar vacío.');
                 return;
             }
-            
-            const campo_otro_tipo_problema = $('#otro_tipo_problema').val();
 
-            if (campo_otro_tipo_problema.trim() == ''){
-                alert('El campo de especificar tipo de problema no puede estar vacio')
-                return;
-            }
 
             // Obtener la fecha y hora actual
             const timestamp = new Date().toLocaleString();
