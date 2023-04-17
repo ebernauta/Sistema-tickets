@@ -288,6 +288,20 @@ def dataTickets():
                                       "numero_contacto": row[4], "descripcion": row[5],
                                       "estado": row[6], "created_at": row[7], "tipo_problema": row[8]})
     return jsonify(response_data)
+
+@app.route('/ticketUser/<int:user_id>', methods=['GET'])
+@login_required
+def misTickets(user_id):
+    cursor = db.connection.cursor()
+    sql = """ SELECT id_ticket, user_fullname, departamento, numero_contacto, descripcion, estado, created_at FROM tickets 
+            WHERE user_id = '{}'""".format(user_id)
+    cursor.execute(sql)
+    tickets = cursor.fetchall()
+    response_tickets = {"data": []}
+    for row in tickets:
+        response_tickets['data'].append({"id_ticket": row[0],"user_fullname": row[1],"departamento": row[2],"numero_contacto": row[3],"descripcion": row[4],"estado": row[5],"created_at": row[6]})
+    return jsonify(response_tickets)
+   
     
 @app.route('/ver-ticket/<int:id_ticket>', methods=['GET'])
 @login_required
