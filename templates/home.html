@@ -279,6 +279,23 @@
             $('#numero_contacto').val(response.numero_contacto)
             $('#id_ticket').val(ticket_id);
 
+            if (response.estado === 'Cerrado') {
+              // Deshabilitar los campos
+              $('#mensaje').prop('disabled', true);
+              $('#tipo_problema').prop('disabled', true);
+              $('#btn-guardar').prop('disabled', true);
+              // Eliminar la alerta anterior, si existe
+              $('#modalverticket .alert').remove();
+              // Agregar la nueva alerta indicando que el ticket está cerrado
+              var alerta = '<div class="alert alert-danger text-center" role="alert">Este ticket se encuentra cerrado!</div>';
+              $('#modalverticket .modal-body').prepend(alerta);
+            } else {
+              // Si el ticket no está cerrado, habilitar los campos y eliminar la alerta anterior, si existe
+              $('#mensaje').prop('disabled', false);
+              $('#tipo_problema').prop('disabled', false);
+              $('#btn-guardar').prop('disabled', false);
+              $('#modalverticket .alert').remove();
+            }
             //Limpia contenido del chat cada vez que se cargen los msg
             container.innerHTML = '';
             // Cargar los mensajes de chat para la ID del ticket especificada
