@@ -108,8 +108,7 @@ def deleteTicket(id_ticket):
     else:
         return "<h1>Algo pasó</h1>"
     
-    
-    
+
     
 @app.route('/panelAdministracion', methods=['GET', 'POST'])
 @login_required
@@ -124,7 +123,6 @@ def panelAdmin():
             nuevo_problema = request.form['otro_tipo_problema']
             id_ticket = request.form['id_ticket']
             if nuevo_problema == '':
-                print("pues, no agregó otro tipo de problema")
                 sql = "UPDATE tickets SET tipo_problema = '{}' WHERE id_ticket = '{}'".format(tipo_problema, id_ticket)
                 cursor.execute(sql)
                 return redirect(url_for('panelAdmin'))
@@ -135,6 +133,20 @@ def panelAdmin():
                 cursor.execute(sql)
                 return redirect(url_for('panelAdmin'))
         return render_template('panel/panelAdmin.html', current_user_fullname=current_user.fullname, problemas=row)
+    else:
+        return "<h1>No tienes permiso de acceso a esta pagina</h1>"
+
+@app.route('/estadoTicket', methods=['POST', 'GET'])
+@login_required
+def cambioEstado():
+    if current_user.fullname == "ADMINISTRADOR" and (request.method == "GET" or request.method == "POST"):
+        id_ticket = request.form['id_ticket_estado']
+        estado = request.form['estado']
+        print(f"ESTE ES EL ESTADO QUE ESTA ENVIAMDO {estado}")
+        cursor = db.connection.cursor()
+        sql = """ UPDATE tickets SET estado = '{}' WHERE id_ticket = '{}' """.format(estado, id_ticket)
+        cursor.execute(sql)
+        return redirect(url_for('panelAdmin'))
     else:
         return "<h1>No tienes permiso de acceso a esta pagina</h1>"
 
@@ -272,6 +284,7 @@ def status_401(error):
 
 def status_404(error):
     return "<h1>Página no encontrada</h1>", 404
+
 
 @app.route('/dataTickets', methods=['GET'])
 @login_required
