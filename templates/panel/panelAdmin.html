@@ -148,25 +148,6 @@
     </div>
     <script type="text/javascript">
 
-        $('#actualizar-tipo-problema-form').on('submit', function(event) {
-            event.preventDefault();  // Detener el comportamiento predeterminado del formulario
-            // Envía el formulario usando $.ajax() o $.post()
-            $.ajax({
-                url: $(this).attr('action'),
-                method: $(this).attr('method'),
-                data: $(this).serialize(),
-                success: function(response) {
-                    // Muestra la alerta de éxito
-                    var alerta = '<div class="alert alert-success text-center" role="alert">Tipo de problema actualizado !!</div>';
-                    $('#modalverticket .tipoProblema').prepend(alerta);
-                    // Oculta la alerta después de 2 segundos
-                    setTimeout(function() {
-                        $('.alert-success').fadeOut();
-                    }, 2000);
-                }
-            });
-        });
-        
 
         $(document).ready(function () {
             var select = document.querySelector('select[name="tipo_problema"]');
@@ -281,54 +262,84 @@
                 });
             }
 
-            // Agregar el evento click al botón "Ver ticket"
-            $(document).on('click', '[data-bs-target="#modalverticket"]', function () {
-                var ticket_id = $(this).data('ticket-id');
-
+            
+            // Función para cargar el contenido del modal
+            function actualizarModal(ticket_id) {
                 // Hacer la petición AJAX para obtener los detalles del ticket correspondiente
                 $.ajax({
                     url: '/ver-ticket/' + ticket_id,
                     method: 'GET',
                     success: function (response) {
-                        // Actualizar el contenido del modal con los detalles del ticket
-                        $('#modalverticket .modal-title').text('Ticket #ID ' + ticket_id);
-                        $('#funcionario').val(response.user_fullname);
-                        $('#departamento').val(response.departamento);
-                        $('#descripcion').text(response.descripcion);
-                        $('#estado').val(response.estado);
-                        $('#numero_contacto').val(response.numero_contacto)
-                        $('#id_ticket').val(ticket_id);
-                        $('#ticketID').val(ticket_id);
-                        $('#id_ticket_estado').val(ticket_id);
+                        // Cargar el contenido del modal desde un archivo separado
+                        $('#modalverticket .modal-content').load('/ruta/a/modal-content.html', function () {
+                            // Actualizar el contenido del modal con los detalles del ticket
+                            $('#modalverticket .modal-title').text('Ticket #ID ' + ticket_id);
+                            $('#funcionario').val(response.user_fullname);
+                            $('#departamento').val(response.departamento);
+                            $('#descripcion').text(response.descripcion);
+                            $('#estado').val(response.estado);
+                            $('#numero_contacto').val(response.numero_contacto)
+                            $('#id_ticket').val(ticket_id);
+                            $('#ticketID').val(ticket_id);
+                            $('#id_ticket_estado').val(ticket_id);
 
-                        // Asignar el valor de response.tipo_problema al select
-                        $('#tipo_problema').val(response.tipo_problema);
-                        if (response.estado === 'Cerrado') {
-                            // Deshabilitar los campos
-                            $('#mensaje').prop('disabled', true);
-                            $('#tipo_problema').prop('disabled', true);
-                            $('#btn-guardar').prop('disabled', true);
-                            // Eliminar la alerta anterior, si existe
-                            $('#modalverticket .alert').remove();
-                            // Agregar la nueva alerta indicando que el ticket está cerrado
-                            var alerta = '<div class="alert alert-danger text-center" role="alert">Este ticket se encuentra cerrado!</div>';
-                            $('#modalverticket .modal-body').prepend(alerta);
-                        } else {
-                            // Si el ticket no está cerrado, habilitar los campos y eliminar la alerta anterior, si existe
-                            $('#mensaje').prop('disabled', false);
-                            $('#tipo_problema').prop('disabled', false);
-                            $('#btn-guardar').prop('disabled', false);
-                            $('#modalverticket .alert').remove();
-                        }
-                        //Limpia contenido del chat cada vez que se cargen los msg
-                        container.innerHTML = '';
-                        // Cargar los mensajes de chat para la ID del ticket especificada
-                        cargarMensajes(ticket_id);
+                            // Asignar el valor de response.tipo_problema al select
+                            $('#tipo_problema').val(response.tipo_problema);
+                            if (response.estado === 'Cerrado') {
+                                // Deshabilitar los campos
+                                $('#mensaje').prop('disabled', true);
+                                $('#tipo_problema').prop('disabled', true);
+                                $('#btn-guardar').prop('disabled', true);
+                                // Eliminar la alerta anterior, si existe
+                                $('#modalverticket .alert').remove();
+                                // Agregar la nueva alerta indicando que el ticket está cerrado
+                                var alerta = '<div class="alert alert-danger text-center" role="alert">Este ticket se encuentra cerrado!</div>';
+                                $('#modalverticket .modal-body').prepend(alerta);
+                            } else {
+                                // Si el ticket no está cerrado, habilitar los campos y eliminar la alerta anterior, si existe
+                                $('#mensaje').prop('disabled', false);
+                                $('#tipo_problema').prop('disabled', false);
+                                $('#btn-guardar').prop('disabled', false);
+                                $('#modalverticket .alert').remove();
+                            }
+                            //Limpia contenido del chat cada vez que se cargen los msg
+                            container.innerHTML = '';
+                            // Cargar los mensajes de chat para la ID del ticket especificada
+                            cargarMensajes(ticket_id);
+                        });
                     },
                     error: function (xhr, status, error) {
                         console.log(error);
                     }
                 });
+            }
+
+            $('#actualizar-tipo-problema-form').on('submit', function (event) {
+                event.preventDefault();  // Detener el comportamiento predeterminado del formulario
+                // Envía el formulario usando $.ajax() o $.post()
+                $.ajax({
+                    url: $(this).attr('action'),
+                    method: $(this).attr('method'),
+                    data: $(this).serialize(),
+                    success: function (response) {
+                        // Muestra la alerta de éxito
+                        var alerta = '<div class="alert alert-success text-center" role="alert">Tipo de problema actualizado !!</div>';
+                        $('#modalverticket .tipoProblema').prepend(alerta);
+                        // Oculta la alerta después de 2 segundos
+                        setTimeout(function () {
+                            $('.alert-success').fadeOut(function () {
+                                // Recargar la página después de que la alerta desaparezca
+                                location.reload();
+                            });
+                        }, 2000);
+                    }
+                });
+            });
+            // Evento de clic en el botón para abrir el modal
+            $(document).on('click', '[data-bs-target="#modalverticket"]', function () {
+                var ticket_id = $(this).data('ticket-id');
+                // Actualizar el contenido del modal
+                actualizarModal(ticket_id);
             });
         });
 
