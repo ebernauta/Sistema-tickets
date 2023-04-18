@@ -65,6 +65,21 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
+                        <div>
+                            <h3 class="text-primary" style="text-align: center;">Cambiar estado del ticket</h3>
+                        </div><br>
+                        <form action="{{url_for('cambioEstado')}}" method="POST">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="id_ticket_estado" id="id_ticket_estado">
+                            <div class="text-center" role="group">
+                                <button type="submit" name="estado" value="Cerrado"
+                                    class="btn btn-danger">Cerrado</button>
+                                <button type="submit" name="estado" value="Pendiente"
+                                    class="btn btn-warning">Pendiente</button>
+                                <button type="submit" name="estado" value="Abierto"
+                                    class="btn btn-success">Abierto</button>
+                            </div>
+                        </form>
                         <div class="form-group">
                             <label>Funcionario</label>
                             <input type="text" name="funcionario" class="form-control" id="funcionario" disabled>
@@ -84,8 +99,8 @@
                                 disabled>
                         </div><br>
 
-                        <div class="form-group">
-                            <form action="{{ url_for('panelAdmin') }}" method="POST">
+                        <div class="form-group tipoProblema">
+                            <form action="{{ url_for('panelAdmin') }}" method="POST" id="actualizar-tipo-problema-form">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <input type="hidden" name="id_ticket" id="ticketID" autocomplete="off">
                                 <label for="tipo_problema">Tipo de problema</label>
@@ -105,7 +120,9 @@
                                     <input type="text" class="form-control" id="otro_tipo_problema"
                                         name="otro_tipo_problema">
                                 </div><br>
-                                <button type="submit" class="btn btn-success">Actualizar tipo problema</button>
+                                <div class="form-group text-center">
+                                    <button type="submit" class="btn btn-success">Actualizar tipo problema</button>
+                                </div>
                             </form>
                         </div><br>
                         <div>
@@ -130,6 +147,27 @@
         </div>
     </div>
     <script type="text/javascript">
+
+        $('#actualizar-tipo-problema-form').on('submit', function(event) {
+            event.preventDefault();  // Detener el comportamiento predeterminado del formulario
+            // Envía el formulario usando $.ajax() o $.post()
+            $.ajax({
+                url: $(this).attr('action'),
+                method: $(this).attr('method'),
+                data: $(this).serialize(),
+                success: function(response) {
+                    // Muestra la alerta de éxito
+                    var alerta = '<div class="alert alert-success text-center" role="alert">Tipo de problema actualizado !!</div>';
+                    $('#modalverticket .tipoProblema').prepend(alerta);
+                    // Oculta la alerta después de 2 segundos
+                    setTimeout(function() {
+                        $('.alert-success').fadeOut();
+                    }, 2000);
+                }
+            });
+        });
+        
+
         $(document).ready(function () {
             var select = document.querySelector('select[name="tipo_problema"]');
             var otroProblema = document.querySelector('#otro-problema');
@@ -190,7 +228,7 @@
                     {
                         "data": null,
                         "render": function (data, type, row) {
-                            return '<a class="btn btn-primary" href="/verTicket/' + row.id_ticket + '" data-bs-toggle="modal" data-bs-target="#modalverticket" data-ticket-id="' + row.id_ticket + '">Ver ticket</a>';
+                            return '<button class="btn btn-primary ver-ticket" href="/verTicket/' + row.id_ticket + '" data-bs-toggle="modal" data-bs-target="#modalverticket" data-ticket-id="' + row.id_ticket + '">Ver ticket</button>';
                         }
                     },
                     { "data": "created_at" }
@@ -217,6 +255,7 @@
                 }
             });
         });
+
         $(document).ready(function () {
             function cargarMensajes(id_ticket) {
                 $.ajax({
@@ -260,10 +299,27 @@
                         $('#numero_contacto').val(response.numero_contacto)
                         $('#id_ticket').val(ticket_id);
                         $('#ticketID').val(ticket_id);
+                        $('#id_ticket_estado').val(ticket_id);
 
                         // Asignar el valor de response.tipo_problema al select
                         $('#tipo_problema').val(response.tipo_problema);
-
+                        if (response.estado === 'Cerrado') {
+                            // Deshabilitar los campos
+                            $('#mensaje').prop('disabled', true);
+                            $('#tipo_problema').prop('disabled', true);
+                            $('#btn-guardar').prop('disabled', true);
+                            // Eliminar la alerta anterior, si existe
+                            $('#modalverticket .alert').remove();
+                            // Agregar la nueva alerta indicando que el ticket está cerrado
+                            var alerta = '<div class="alert alert-danger text-center" role="alert">Este ticket se encuentra cerrado!</div>';
+                            $('#modalverticket .modal-body').prepend(alerta);
+                        } else {
+                            // Si el ticket no está cerrado, habilitar los campos y eliminar la alerta anterior, si existe
+                            $('#mensaje').prop('disabled', false);
+                            $('#tipo_problema').prop('disabled', false);
+                            $('#btn-guardar').prop('disabled', false);
+                            $('#modalverticket .alert').remove();
+                        }
                         //Limpia contenido del chat cada vez que se cargen los msg
                         container.innerHTML = '';
                         // Cargar los mensajes de chat para la ID del ticket especificada
