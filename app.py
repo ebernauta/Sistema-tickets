@@ -5,7 +5,8 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from datetime import datetime
 from config import config
 import json
-
+from collections import defaultdict
+import matplotlib.pyplot as plt
 # Models:
 from models.ModelUser import ModelUser
 from models.ModelTicket import ModelTicket 
@@ -302,6 +303,7 @@ def dataTickets():
                                       "estado": row[6], "created_at": row[7], "tipo_problema": row[8]})
     return jsonify(response_data)
 
+
 @app.route('/ticketUser/<int:user_id>', methods=['GET'])
 @login_required
 def misTickets(user_id):
@@ -314,7 +316,35 @@ def misTickets(user_id):
     for row in tickets:
         response_tickets['data'].append({"id_ticket": row[0],"user_fullname": row[1],"departamento": row[2],"numero_contacto": row[3],"descripcion": row[4],"estado": row[5],"created_at": row[6]})
     return jsonify(response_tickets)
-   
+
+@app.route('/dataGrafico', methods=['GET'])
+@login_required
+def dataGrafico():
+    cursor = db.connection.cursor()
+    sql = """ SELECT tipo_problema FROM tickets """
+    cursor.execute(sql)
+    datos = cursor.fetchall()
+
+    # Contar la frecuencia de cada tipo de problema
+    frecuencias = defaultdict(int)
+    for row in datos:
+        tipo_problema = row[0]
+        frecuencias[tipo_problema] += 1
+
+    # Ordenar los resultados por frecuencia
+    resultados = sorted(frecuencias.items(), key=lambda x: x[1], reverse=True)
+
+    # Preparar la respuesta en formato JSON
+    response_data = {"data": []}
+    for tipo_problema, frecuencia in resultados:
+        response_data['data'].append({"tipo_problema": tipo_problema, "frecuencia": frecuencia})
+
+    return jsonify(response_data)
+
+@app.route('/estadisticas-problemas')
+@login_required
+def estadisticas_problemas():
+    return render_template('grafico.html')
     
 @app.route('/ver-ticket/<int:id_ticket>', methods=['GET'])
 @login_required
