@@ -68,27 +68,60 @@
                             label: 'Frecuencia de problema',
                             data: frecuencias,
                             backgroundColor: [
-                                'rgba(255, 99, 132, 0.2)',
-                                'rgba(54, 162, 235, 0.2)',
-                                'rgba(255, 206, 86, 0.2)',
-                                'rgba(75, 192, 192, 0.2)',
-                                'rgba(153, 102, 255, 0.2)',
-                                'rgba(255, 159, 64, 0.2)',
-                                'rgba(255, 99, 132, 0.2)'
+                                '#FF6384',
+                                '#36A2EB',
+                                '#FFCE56',
+                                '#008000',
+                                '#800080',
+                                '#FFA07A',
+                                '#00FF00',
+                                '#00FFFF',
+                                '#FF00FF',
+                                '#000080',
+                                '#FF7F50',
+                                '#FFD700',
+                                '#808080',
+                                '#008080',
+                                '#800000',
+                                '#0000FF',
+                                '#FF69B4',
+                                '#000000',
+                                '#696969'
                             ],
                             borderColor: [
-                                'rgba(255, 99, 132, 1)',
-                                'rgba(54, 162, 235, 1)',
-                                'rgba(255, 206, 86, 1)',
-                                'rgba(75, 192, 192, 1)',
-                                'rgba(153, 102, 255, 1)',
-                                'rgba(255, 159, 64, 1)',
-                                'rgba(255, 99, 132, 1)'
+                                '#FF6384',
+                                '#36A2EB',
+                                '#FFCE56',
+                                '#008000',
+                                '#800080',
+                                '#FFA07A',
+                                '#00FF00',
+                                '#00FFFF',
+                                '#FF00FF',
+                                '#000080',
+                                '#FF7F50',
+                                '#FFD700',
+                                '#808080',
+                                '#008080',
+                                '#800000',
+                                '#0000FF',
+                                '#FF69B4',
+                                '#000000',
+                                '#696969'
                             ],
                             borderWidth: 1
                         }]
                     },
                     options: {
+                        tooltips: {
+                            callbacks: {
+                                label: function (tooltipItem, data) {
+                                    var label = data.labels[tooltipItem.index];
+                                    var value = data.datasets[0].data[tooltipItem.index];
+                                    return label + ': ' + value;
+                                }
+                            }
+                        },
                         scales: {
                             yAxes: [{
                                 ticks: {
@@ -102,7 +135,7 @@
             .catch(function (error) {
                 console.log(error);
             });
-       
+
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
