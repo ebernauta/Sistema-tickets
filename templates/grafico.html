@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Sistema de ticket</title>
+</head>
+
+<body>
+    <div class="text-center bg-dark-subtle">
+        <h1>Estadisticas de problemas</h1>
+    </div>
+    <div class="container">
+        <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom ">
+            <a class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+                <img src="\static\img\logo.png" alt="logo" class="img-thumbnail" width="65" height="70">
+                <span class="fs-3">&nbsp;&nbsp;Bienvenido, {{current_user.fullname}}</span>
+            </a>
+            <ul class="nav">
+                <li class="nav-item m-1"><a href="{{url_for ('panelAdmin') }}" class="btn btn-secondary">Home</a>
+                </li>
+                <li class="nav-item m-1"><a href="{{url_for ('usuariosPanel') }}" class="btn btn-secondary">Usuarios</a>
+                </li>
+                <li class="nav-item m-1"><a href="{{ url_for ('departamentosPanel') }}"
+                        class="btn btn-secondary">Departamentos</a></li>
+                <li class="nav-item m-1"><a href="{{ url_for ('logout') }}" class="btn btn-danger">Cerrar Sesión</a>
+                </li>
+            </ul>
+        </header>
+    </div>
+    <div class="text-center">
+        <h1>Estadisticas de problemas</h1>
+        <div class="alert alert-info container" role="alert">
+            El grafico es interactivo puede ir descartando problemas que no desea que se vean en su grafico ☝
+        </div>
+    </div><br>
+    <div class="container justify-content-center">
+        <div class="row">
+            <div class="col-md-7 container">
+                <canvas id="myChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        axios.get('/dataGrafico')
+            .then(function (response) {
+                var data = response.data.data;
+
+                // Filtrar las entradas con valores vacíos o nulos en el campo "tipo_problema"
+                data = data.filter(function (d) { return d.tipo_problema && d.tipo_problema.trim() !== ''; });
+
+                // Generar el gráfico con Charts.js
+                var tipos_problema = data.map(function (d) { return d.tipo_problema; });
+                var frecuencias = data.map(function (d) { return d.frecuencia; });
+
+                var ctx = document.getElementById('myChart').getContext('2d');
+                var myChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: tipos_problema,
+                        datasets: [{
+                            label: 'Frecuencia de problema',
+                            data: frecuencias,
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.2)',
+                                'rgba(54, 162, 235, 0.2)',
+                                'rgba(255, 206, 86, 0.2)',
+                                'rgba(75, 192, 192, 0.2)',
+                                'rgba(153, 102, 255, 0.2)',
+                                'rgba(255, 159, 64, 0.2)',
+                                'rgba(255, 99, 132, 0.2)'
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 159, 64, 1)',
+                                'rgba(255, 99, 132, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: true
+                                }
+                            }]
+                        }
+                    }
+                });
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+       
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
