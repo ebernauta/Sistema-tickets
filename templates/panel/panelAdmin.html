@@ -26,6 +26,8 @@
                 <span class="fs-3">&nbsp;&nbsp;Bienvenido, {{current_user.fullname}}</span>
             </a>
             <ul class="nav">
+                <li class="nav-item m-1"><a href="{{url_for ('estadisticas_problemas') }}" class="btn btn-secondary">Estadisticas de problemas</a>
+                </li>
                 <li class="nav-item m-1"><a href="{{url_for ('usuariosPanel') }}" class="btn btn-secondary">Usuarios</a>
                 </li>
                 <li class="nav-item m-1"><a href="{{ url_for ('departamentosPanel') }}"
@@ -262,7 +264,7 @@
                 });
             }
 
-            
+
             // Función para cargar el contenido del modal
             function actualizarModal(ticket_id) {
                 // Hacer la petición AJAX para obtener los detalles del ticket correspondiente
@@ -329,12 +331,29 @@
                         setTimeout(function () {
                             $('.alert-success').fadeOut(function () {
                                 // Recargar la página después de que la alerta desaparezca
+                                ticket_id = $('#ticketID').val();
+                                localStorage.setItem('ticket_id', ticket_id); // Almacenar el ticket_id en localStorage
                                 location.reload();
                             });
                         }, 2000);
                     }
                 });
             });
+
+            //después de que la página se haya recargado, recuperar el ticket_id de localStorage y llamar la función actualizarModal
+            $(document).ready(function () {
+                var ticket_id = localStorage.getItem('ticket_id');
+                if (ticket_id) {
+                    //actualizarModal(ticket_id);
+                    const verTicketBtn = document.querySelector(`button.ver-ticket[data-ticket-id="${ticket_id}"]`);
+                    if (verTicketBtn){
+                        console.log("estoy dentro del ")
+                        verTicketBtn.click();
+                    }
+                    localStorage.removeItem('ticket_id'); // Eliminar el ticket_id de localStorage después de usarlo
+                }
+            });
+
             // Evento de clic en el botón para abrir el modal
             $(document).on('click', '[data-bs-target="#modalverticket"]', function () {
                 var ticket_id = $(this).data('ticket-id');
