@@ -20,7 +20,12 @@
         <span class="fs-3">&nbsp;&nbsp;Bienvenido, {{current_user.fullname}}</span>
       </a>
       <ul class="nav">
-        <li class="nav-item m-1"><a href="{{url_for ('panelAdmin') }}" class="btn btn-secondary">Home</a></li>
+        <li class="nav-item m-1"><a href="{{url_for ('panelAdmin') }}" class="btn btn-secondary">Home</a>
+        </li>
+        <li class="nav-item m-1"><a href="{{url_for ('estadisticas_problemas') }}" class="btn btn-secondary">Estadisticas de problemas</a>
+      </li>
+        <li class="nav-item m-1"><a href="{{url_for ('usuariosPanel') }}" class="btn btn-secondary">Usuarios</a>
+        </li>
         <li class="nav-item m-1"><a href="{{ url_for ('logout') }}" class="btn btn-danger">Cerrar Sesión</a></li>
       </ul>
     </header>
