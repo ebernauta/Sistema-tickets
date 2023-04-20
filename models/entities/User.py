@@ -18,5 +18,5 @@ class User(UserMixin):
     def generatePasswordHash(self, password):
         print(password)
         return generate_password_hash(password)
-
-# print(generate_password_hash("admin123"))
+    
+#print(generate_password_hash("admin123"))

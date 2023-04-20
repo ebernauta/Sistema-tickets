@@ -328,14 +328,6 @@
                         var alerta = '<div class="alert alert-success text-center" role="alert">Tipo de problema actualizado !!</div>';
                         $('#modalverticket .tipoProblema').prepend(alerta);
                         // Oculta la alerta después de 2 segundos
-                        setTimeout(function () {
-                            $('.alert-success').fadeOut(function () {
-                                // Recargar la página después de que la alerta desaparezca
-                                ticket_id = $('#ticketID').val();
-                                localStorage.setItem('ticket_id', ticket_id); // Almacenar el ticket_id en localStorage
-                                location.reload();
-                            });
-                        }, 2000);
                     }
                 });
             });

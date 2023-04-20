@@ -65,7 +65,7 @@
                     data: {
                         labels: tipos_problema,
                         datasets: [{
-                            label: 'Frecuencia de problema',
+                            label: ' Frecuencia de problema',
                             data: frecuencias,
                             backgroundColor: [
                                 '#FF6384',
@@ -113,6 +113,24 @@
                         }]
                     },
                     options: {
+                        legend: {
+                            display: false
+                        },
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: true
+                                }
+                            }],
+                            xAxes: [{
+                                ticks: {
+                                    autoSkip: false,
+                                    fontStyle: 'bold'
+                                },
+                                barPercentage: 0.8,
+                                categoryPercentage: 0.5
+                            }]
+                        },
                         tooltips: {
                             callbacks: {
                                 label: function (tooltipItem, data) {
@@ -121,15 +139,8 @@
                                     return label + ': ' + value;
                                 }
                             }
-                        },
-                        scales: {
-                            yAxes: [{
-                                ticks: {
-                                    beginAtZero: true
-                                }
-                            }]
                         }
-                    }
+                    },
                 });
             })
             .catch(function (error) {
