@@ -6,7 +6,6 @@ from datetime import datetime
 from config import config
 import json
 from collections import defaultdict
-import matplotlib.pyplot as plt
 # Models:
 from models.ModelUser import ModelUser
 from models.ModelTicket import ModelTicket 
@@ -57,6 +56,10 @@ def login():
             return render_template('auth/login.html')
     else:
         return render_template('auth/login.html')
+
+@app.route('/registrarse', methods=['GET', 'POST'])
+def registrarse():
+    return render_template("/auth/register.html")
 
 
 @app.route('/logout')
@@ -279,12 +282,7 @@ def updateDepartamento():
         return "<h1>No tienes permiso de acceso a esta pagina</h1>"
 
 
-def status_401(error):
-    return redirect(url_for('login'))
 
-
-def status_404(error):
-    return "<h1>Página no encontrada</h1>", 404
 
 
 @app.route('/dataTickets', methods=['GET'])
@@ -380,7 +378,13 @@ def obtener_mensajes(id_ticket):
         return jsonify(mensajes_json)
     else:
         return jsonify({"Error": "Creo que no hemos encontrado lo que buscamos"})
+    
+def status_401(error):
+    return redirect(url_for('login'))
 
+
+def status_404(error):
+    return "<h1>Página no encontrada</h1>", 404
 
 app.register_error_handler(401, status_401)
 app.register_error_handler(404, status_404)
