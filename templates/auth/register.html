@@ -13,14 +13,15 @@
 
 <body class="text-center">
     <main class="form-signin w-100 m-auto">
-        <form action="#" method="POST">
+        <form action="registrarFuncionario" method="POST">
             <img src="\static\img\logo.png" alt="logo">
             <h1 class="h3 mb-3 fw-normal">Sistema de tickets</h1>
+            <h4>Registrar nuevo usuario al sistema</h4>
             {% with messages = get_flashed_messages(with_categories=True) %}
             {% if messages %}
             <br />
             {% for categories, message in messages %}
-            <div class="alert alert-{{categories}} alert-dismissible" role="alert">
+            <div class="alert alert-{{categories}} alert-dismissible" role="alert" id="flash-alert">
                 <strong>{{ message }}</strong>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
@@ -28,22 +29,82 @@
             {% endif %}
 
             {% endwith %}
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <div class="form-floating">
-                <input type="text" class="form-control" autocomplete="off" name="rut">
-                <label for="floatingInput">Ingrese su rut</label>
-            </div>
-            <div class="form-floating">
-                <input type="password" class="form-control" name="password">
-                <label for="floatingPassword">Contraseña</label>
-            </div>
-            <div class="form-floating">    
-                <a class="w-100 btn btn-outline-primary" href="#">Registrarse</a>
-            </div>
+            {% if crear_usuario %}
+            <!-- mostrar el formulario aquí -->
+            <form action="registrarse" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><br>
+                <div class="form-floating">
+                    <input type="text" class="form-control" autocomplete="off" name="fullname">
+                    <label for="floatingInput">Ingrese su nombre completo</label>
+                </div><br>
+                <div class="form-floating">
+                    <input type="password" class="form-control password-input" autocomplete="off" name="password"
+                        id="password-input">
+                    <label for="password-input">Ingrese su contraseña</label>
+                </div>
+                <div class="form-floating">
+                    <input type="password" class="form-control password-input" autocomplete="off"
+                        name="password-confirm" id="password-confirm-input">
+                    <label for="password-confirm-input">Confirme su contraseña</label>
+                </div>
+                <div id="password-match-error" class="text-danger d-none">Las contraseñas no coinciden.</div><br>
+                <div class="form-floating">
+                    <input type="email" class="form-control" autocomplete="off" name="email" id="email-input">
+                    <label for="email-input">Ingrese su correo electrónico</label>
+                </div><br>
+                <div id="email-error" class="text-danger d-none">Por favor, ingrese un correo electrónico válido.</div>
+                <button type="submit" class="w-100 btn btn-outline-success">Registrarse al sistema</button>
+            </form>
+            {% endif %}
         </form>
 
+
     </main>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js" integrity="sha384-qKXV1j0HvMUeCBQ+QVp7JcfGl760yU08IQ+GpUo5hlbpg51QRiuqHAJz8+BrxE/N" crossorigin="anonymous"></script>
+    <script>
+        // Seleccionar el elemento de alerta
+        var alertElement = document.getElementById('flash-alert');
+
+        // Esperar 5 segundos y luego eliminar el elemento de alerta
+        setTimeout(function () {
+            alertElement.remove();
+        }, 5000);
+
+        var passwordInput = document.getElementById('password-input');
+        var passwordConfirmInput = document.getElementById('password-confirm-input');
+        var passwordMatchError = document.getElementById('password-match-error');
+
+        function checkPasswords() {
+            if (passwordInput.value !== passwordConfirmInput.value) {
+                passwordMatchError.classList.remove('d-none');
+            } else {
+                passwordMatchError.classList.add('d-none');
+            }
+        }
+
+        passwordInput.addEventListener('input', checkPasswords);
+        passwordConfirmInput.addEventListener('input', checkPasswords);
+
+        var emailInput = document.getElementById('email-input');
+        var emailError = document.getElementById('email-error');
+
+        function validateEmail() {
+            var email = emailInput.value;
+            var pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!pattern.test(email)) {
+                emailError.classList.remove('d-none');
+                return false;
+            } else {
+                emailError.classList.add('d-none');
+                return true;
+            }
+        }
+
+        emailInput.addEventListener('input', validateEmail);
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-qKXV1j0HvMUeCBQ+QVp7JcfGl760yU08IQ+GpUo5hlbpg51QRiuqHAJz8+BrxE/N"
+        crossorigin="anonymous"></script>
 </body>
 
 </html>

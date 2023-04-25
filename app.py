@@ -59,7 +59,37 @@ def login():
 
 @app.route('/registrarse', methods=['GET', 'POST'])
 def registrarse():
-    return render_template("/auth/register.html")
+    return render_template("/auth/verificarRut.html")
+
+@app.route('/verificarRut', methods=['GET', 'POST'])
+def verificarRut():
+    crear_usuario = False  # establecer la variable de contexto en False
+    if request.method == 'POST':
+        rut = request.form['rut']
+        cursor = db.connection.cursor()
+        sql = """SELECT * FROM user WHERE username = '{}' """.format(rut)
+        cursor.execute(sql)
+        user = cursor.fetchone()
+        if user is not None:
+            sql = """ SELECT password FROM user WHERE username = '{}'  """.format(rut)
+            cursor.execute(sql)
+            password = cursor.fetchone()
+            if password[0] is None:
+                crear_usuario = True  # establecer la variable de contexto en True
+                flash("Porfavor completar el siguiente formulario para poder registrarse", "warning")
+            else:
+                flash("Este rut ya registra dentro de nuestro sistema con una cuenta existente", "danger")
+        else:
+            crear_usuario = True  # establecer la variable de contexto en True
+            flash("El RUT está disponible.", "success")
+    
+    # Pasar la variable de contexto a la plantilla
+    return render_template('/auth/register.html', crear_usuario=crear_usuario)
+
+
+@app.route('/registrarFuncionario', methods=['GET', 'POST'])
+def registrarFuncionario():
+    return jsonify({"Mensaje": "Se ha registrado con exito a un nuevo usuario"})
 
 
 @app.route('/logout')
@@ -112,7 +142,6 @@ def deleteTicket(id_ticket):
     else:
         return "<h1>Algo pasó</h1>"
     
-
     
 @app.route('/panelAdministracion', methods=['GET', 'POST'])
 @login_required
