@@ -59,6 +59,7 @@ def login():
 
 @app.route('/registrarse', methods=['GET', 'POST'])
 def registrarse():
+    print("QUE HAGO ACÁ !?")
     return render_template("/auth/verificarRut.html")
 
 @app.route('/verificarRut', methods=['GET', 'POST'])
@@ -77,6 +78,7 @@ def verificarRut():
             if password[0] is None:
                 crear_usuario = True  # establecer la variable de contexto en True
                 flash("Porfavor completar el siguiente formulario para poder registrarse", "warning")
+                return redirect(url_for('registrarFuncionario', rut=rut, crear_usuario=crear_usuario))
             else:
                 flash("Este rut ya registra dentro de nuestro sistema con una cuenta existente", "danger")
         else:
@@ -87,9 +89,18 @@ def verificarRut():
     return render_template('/auth/register.html', crear_usuario=crear_usuario)
 
 
-@app.route('/registrarFuncionario', methods=['GET', 'POST'])
-def registrarFuncionario():
-    return jsonify({"Mensaje": "Se ha registrado con exito a un nuevo usuario"})
+@app.route('/registrarFuncionario/<rut>/<crear_usuario>', methods=['GET', 'POST'])
+def registrarFuncionario(rut, crear_usuario):
+    if request.method == 'POST':
+        cursor = db.connection.cursor()
+        fullname = request.form['fullname']
+        password = request.form['password-confirm']
+        email = request.form['email']
+        sql = """ UPDATE user SET password = '{}', fullname = '{}', email = '{}' WHERE username = '{}' """.format(password, fullname, email, rut)
+        cursor.execute(sql)
+        flash("Usuario registrado con exito !", "success")
+        return redirect(url_for('login'))
+    return render_template('/auth/register.html', crear_ususario=crear_usuario)
 
 
 @app.route('/logout')

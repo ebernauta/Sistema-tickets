@@ -29,9 +29,9 @@
             {% endif %}
 
             {% endwith %}
-            {% if crear_usuario %}
+            {% if crear_ususario %}
             <!-- mostrar el formulario aquí -->
-            <form action="registrarse" method="POST">
+            <form action="registrarFuncionario" method="POST">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><br>
                 <div class="form-floating">
                     <input type="text" class="form-control" autocomplete="off" name="fullname">
