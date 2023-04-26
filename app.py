@@ -45,7 +45,10 @@ def login():
                     flash("Contraseña incorrecta...", 'danger')
                     return render_template('auth/login.html')
             else:
-                if logged_user.password:
+                if logged_user.password and logged_user.fullname is None:
+                    flash("Hey tu rut está habilitado para el uso del sistema pero necesitas registrarte", "warning")
+                    return redirect(url_for('registrarse'))
+                elif logged_user.password:
                     login_user(logged_user)
                     return redirect(url_for('home'))
                 else:
@@ -59,7 +62,6 @@ def login():
 
 @app.route('/registrarse', methods=['GET', 'POST'])
 def registrarse():
-    print("QUE HAGO ACÁ !?")
     return render_template("/auth/verificarRut.html")
 
 @app.route('/verificarRut', methods=['GET', 'POST'])
@@ -81,6 +83,7 @@ def verificarRut():
                 return redirect(url_for('registrarFuncionario', rut=rut, crear_usuario=crear_usuario))
             else:
                 flash("Este rut ya registra dentro de nuestro sistema con una cuenta existente", "danger")
+                return redirect(url_for('login'))
         else:
             crear_usuario = True  # establecer la variable de contexto en True
             flash("El RUT está disponible.", "success")
@@ -309,11 +312,11 @@ def deleteDepartamento(id_data):
 def updateDepartamento():
     if current_user.fullname == "ADMINISTRADOR" and request.method == "GET" or request.method == "POST":
         flash("Departamento editado exitosamente !", "success")
-        id_data = request.form['id']
+        id_depa = request.form['iddepa']
         departamento = request.form['departamento']
         cursor = db.connection.cursor()
         sql = """UPDATE departamentos SET departamento='{}' 
-                    WHERE iddepartamento='{}' """.format(departamento, id_data)
+                    WHERE iddepartamento='{}' """.format(departamento, id_depa)
         cursor.execute(sql)
         return redirect(url_for('departamentosPanel'))
     else:
@@ -374,7 +377,36 @@ def editar_usuarios(id):
     else:
         return jsonify({"Error": "El usuario no se ha encontrado"})
     
-    
+@app.route('/obtener_departamentos', methods=['GET'])
+@login_required
+def obtener_departamentos():
+    cursor = db.connection.cursor()
+    sql = """ SELECT iddepartamento, departamento from departamentos """
+    cursor.execute(sql)
+    dataDepa = cursor.fetchall()
+    if dataDepa:
+        response_data = {"data": []}
+        for depa in dataDepa:
+            response_data['data'].append({"iddepartamento": depa[0], "departamento": depa[1]})
+        return jsonify(response_data)
+    else:
+        return jsonify({"Error": "Departamentos no encontrados"})
+            
+@app.route('/editar_departamento/<int:departamento_id>')
+@login_required
+def editar_departamento(departamento_id):
+    cursor =  db.connection.cursor()
+    sql = """ SELECT iddepartamento, departamento FROM departamentos WHERE iddepartamento = '{}' """.format(departamento_id)
+    cursor.execute(sql)
+    dataDepa = cursor.fetchone()
+    if dataDepa:
+        response_data = {
+            "iddepartamento": dataDepa[0],
+            "departamento": dataDepa[1],
+        }
+        return jsonify(response_data)
+    else:
+        return jsonify({"Error": "El departamento no se ha encontrado"})
 
 @app.route('/ticketUser/<int:user_id>', methods=['GET'])
 @login_required
