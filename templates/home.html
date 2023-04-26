@@ -148,7 +148,7 @@
     </div>
   </div>
   <!-- MODAL DELETE TICKET -->
-  {% for ticket in tickets%}
+  {% for ticket in tickets %}
   <div>
     <div id="modaldeleteticket{{ ticket.0 }}" class="modal fade" role="dialog">
       <div class="modal-dialog">
@@ -264,7 +264,7 @@
       // Agregar el evento click al botón "Ver ticket"
       $(document).on('click', '[data-bs-target="#modalverticket"]', function () {
         var ticket_id = $(this).data('ticket-id');
-
+        console.log(ticket_id)
         // Hacer la petición AJAX para obtener los detalles del ticket correspondiente
         $.ajax({
           url: '/ver-ticket/' + ticket_id,

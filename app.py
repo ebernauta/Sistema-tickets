@@ -227,10 +227,8 @@ def usuariosPanel():
 def newUser():
     if current_user.fullname == "ADMINISTRADOR" and request.method == "GET" or request.method == "POST":
         flash("Se ha creado un nuevo usuario !", "success")
-        username = request.form['username']
-        password = request.form['password']
-        fullname = request.form['fullname']
-        nuevoUsuario = ModelUser.newUser(db, username, password, fullname)
+        rut = request.form['rut']
+        nuevoUsuario = ModelUser.newUser(db, rut)
         return redirect(url_for('usuariosPanel'))
     else:
         return "<h1>No tienes permiso de acceso a esta pagina</h1>"
@@ -256,9 +254,9 @@ def updateUsuario():
         flash("Usuario editado exitosamente !","success")
         id_data = request.form['id']
         username = request.form['username']
-        password = request.form['password']
+        email = request.form['email']
         fullname = request.form['fullname']
-        updateSql = ModelUser.editUser(db, username, password, fullname, id_data)
+        updateSql = ModelUser.editUser(db, username, email, fullname, id_data)
         return redirect(url_for('usuariosPanel'))
     else:
         return "<h1>No tienes permiso de acceso a esta pagina</h1>"
@@ -342,6 +340,42 @@ def dataTickets():
     return jsonify(response_data)
 
 
+@app.route('/obtener_usuarios', methods=['GET'])
+@login_required
+def obtener_usuarios():
+    cursor = db.connection.cursor()
+    sql = """SELECT id, username, fullname, email FROM user"""
+    cursor.execute(sql)
+    dataUser = cursor.fetchall()
+    if dataUser:
+        response_data = {"data": []}
+        for user in dataUser:
+           response_data['data'].append({"id": user[0], "username": user[1], "fullname": user[2],
+                                         "email": user[3]})
+        return jsonify(response_data)
+    else:
+        return jsonify({"Error": "Usuarios no encontrados"})
+
+@app.route('/editar_usuario/<int:id>')
+@login_required
+def editar_usuarios(id):
+    cursor =  db.connection.cursor()
+    sql = """ SELECT id, username, fullname, email FROM user WHERE id = '{}' """.format(id)
+    cursor.execute(sql)
+    dataUser = cursor.fetchone()
+    if dataUser:
+        response_data = {
+            "id": dataUser[0],
+            "username": dataUser[1],
+            "fullname": dataUser[2],
+            "email": dataUser[3]
+        }
+        return jsonify(response_data)
+    else:
+        return jsonify({"Error": "El usuario no se ha encontrado"})
+    
+    
+
 @app.route('/ticketUser/<int:user_id>', methods=['GET'])
 @login_required
 def misTickets(user_id):
@@ -354,6 +388,8 @@ def misTickets(user_id):
     for row in tickets:
         response_tickets['data'].append({"id_ticket": row[0],"user_fullname": row[1],"departamento": row[2],"numero_contacto": row[3],"descripcion": row[4],"estado": row[5],"created_at": row[6]})
     return jsonify(response_tickets)
+
+
 
 @app.route('/dataGrafico', methods=['GET'])
 @login_required
@@ -419,6 +455,7 @@ def obtener_mensajes(id_ticket):
     else:
         return jsonify({"Error": "Creo que no hemos encontrado lo que buscamos"})
     
+
 def status_401(error):
     return redirect(url_for('login'))
 

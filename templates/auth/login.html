@@ -8,6 +8,7 @@
     <!--Boostrap-->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for ('static', filename='/css/login.css')}}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <title>Login de sistema</title>
 </head>
 
@@ -34,9 +35,10 @@
                 <label for="floatingInput">Rut</label>
             </div>
             <div class="form-floating">
-                <input type="password" class="form-control" name="password">
-                <label for="floatingPassword">Contraseña</label>
-            </div>
+                <input type="password" class="form-control" id="password" name="password">
+                <label for="password">Contraseña</label>
+                <div class="invalid-feedback" id="password-validation-message"></div>
+              </div>
             <div class="form-floating">    
                 <button class="w-100 btn btn-outline-primary" type="submit">Iniciar sesion</button>-
                 <a class="w-100 btn btn-outline-primary" href="/registrarse">Registrarse</a>
@@ -48,6 +50,32 @@
         </form>
 
     </main>
+    <script>
+        $(document).ready(function() {
+            // Obtener el campo de contraseña y el botón de inicio de sesión
+            var passwordField = $('#password');
+            var loginButton = $('button[type="submit"]');
+          
+            // Agregar un controlador de eventos para el evento 'input' del campo de contraseña
+            passwordField.on('input', function() {
+              var password = $(this).val();
+              var errorMessage = '';
+          
+              // Verificar si la contraseña contiene espacios en blanco
+              if (/\s/.test(password)) {
+                errorMessage = 'La contraseña no puede contener espacios en blanco';
+                passwordField.addClass('is-invalid');
+                loginButton.prop('disabled', true);
+              } else {
+                passwordField.removeClass('is-invalid');
+                loginButton.prop('disabled', false);
+              }
+          
+              // Mostrar el mensaje de error
+              $('#password-validation-message').html(errorMessage);
+            });
+          });
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js" integrity="sha384-qKXV1j0HvMUeCBQ+QVp7JcfGl760yU08IQ+GpUo5hlbpg51QRiuqHAJz8+BrxE/N" crossorigin="anonymous"></script>
 </body>
 

@@ -6,6 +6,11 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css"
+    href="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.10.23/b-1.6.5/b-html5-1.6.5/fc-3.3.2/fh-3.1.8/datatables.min.css" />
+  <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+  <script type="text/javascript"
+    src="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.10.23/b-1.6.5/b-html5-1.6.5/fc-3.3.2/fh-3.1.8/datatables.min.js"></script>
   <title>Panel de administración</title>
 </head>
 
@@ -21,10 +26,11 @@
       </a>
       <ul class="nav">
         <li class="nav-item m-1"><a href="{{url_for ('panelAdmin') }}" class="btn btn-secondary">Home</a></li>
-        <li class="nav-item m-1"><a href="{{url_for ('estadisticas_problemas') }}" class="btn btn-secondary">Estadisticas de problemas</a>
+        <li class="nav-item m-1"><a href="{{url_for ('estadisticas_problemas') }}"
+            class="btn btn-secondary">Estadisticas de problemas</a>
         </li>
         <li class="nav-item m-1"><a href="{{ url_for ('departamentosPanel') }}"
-          class="btn btn-secondary">Departamentos</a></li>
+            class="btn btn-secondary">Departamentos</a></li>
         <li class="nav-item m-1"><a href="{{ url_for ('logout') }}" class="btn btn-danger">Cerrar Sesión</a></li>
       </ul>
     </header>
@@ -47,127 +53,178 @@
     </ul>
   </div>
   <div class="container">
-    <table class="table table-secondary">
+    <table id="miTabla">
       <thead>
         <tr>
-          <th scope="col">#ID</th>
-          <th scope="col">Rut</th>
-          <th scope="col">Fullname</th>
-          <th scope="col">Acción</th>
+          <th>#ID</th>
+          <th>Rut</th>
+          <th>Fullname</th>
+          <th>Email</th>
+          <th>Acción</th>
         </tr>
       </thead>
-      <tbody>
-        {% for usuario in filas %}
-        <tr>
-          <th>{{usuario.0}}</th>
-          <td>{{usuario.1}}</td>
-          <td>{{usuario.3}}</td>
-          <td>
-            <a type="button" href="/update/{{usuario.0}}" class="btn btn-warning btn-sm" data-bs-toggle="modal"
-              data-bs-target="#modaledit{{usuario.0}}">Editar</a>
-            <a href="/delete/{{ usuario.0 }}" class="btn btn-danger btn-sm" data-bs-toggle="modal"
-              data-bs-target="#modaldelete{{usuario.0}}">Eliminar</a>
-          </td>
-        </tr>
-        <!--MODAL NEW USER -->
-        <div>
-          <div id="modalnewuser" class="modal fade" role="dialog">
-            <div class="modal-dialog">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title text-primary" style="align-content: center;">Agregar usuario</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                  <form action="{{ url_for('newUser') }}" method="POST">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <input type="hidden" name="id">
-                    <div class="form-group">
-                      <label>Username</label>
-                      <input type="text" name="username" autocomplete="off" class="form-control"
-                        placeholder="Ingrese nombre de usuario">
-                    </div>
-                    <div class="form-group">
-                      <label>Password</label>
-                      <input type="password" name="password" autocomplete="off" class="form-control"
-                        placeholder="Ingrese contraseña">
-                    </div>
-                    <div class="form-group">
-                      <label>Fullname</label>
-                      <input type="text" name="fullname" autocomplete="off" class="form-control"
-                        placeholder="Ingrese nombre completo">
-                    </div><br>
-                    <div class="text-center">
-                      <button type="submit" class="btn btn-success mb-2">Agregar nuevo usuario</button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-
-        <!--MODAL DELETE USER ALERT!!-->
-        <div>
-          <div id="modaldelete{{usuario.0}}" class="modal fade" role="dialog">
-            <div class="modal-dialog">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title text-danger" style="align-content: center;">Eliminar Usuario</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="text-center text-primary">
-                  <h5>¿Estas seguro de eliminar este usuario?</h5>
-                </div><br>
-                <a href="/delete/{{ usuario.0 }}" class="btn btn-danger btn-sm">Eliminar</a>
-              </div>
-            </div>
-          </div>
-        </div>
-
-
-        <!--MODAL EDIT USER !!-->
-        <div>
-          <div id="modaledit{{usuario.0}}" class="modal fade" role="dialog">
-            <div class="modal-dialog">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title text-primary" style="align-content: center;">Modificar usuario</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                  <form action="{{ url_for('updateUsuario') }}" method="POST">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <input type="hidden" name="id" autocomplete="off" value="{{usuario.0}}">
-                    <div class="form-group">
-                      <label>Username</label>
-                      <input type="text" name="username" autocomplete="off" value="{{usuario.1}}" class="form-control"
-                        placeholder="Ingrese username">
-                    </div>
-                    <div class="form-group">
-                      <label>Password</label>
-                      <input type="text" name="password" autocomplete="off" value="{{usuario.2}}" class="form-control"
-                        placeholder="Ingrese password">
-                    </div>
-                    <div class="form-group">
-                      <label>Fullname</label>
-                      <input type="text" name="fullname" autocomplete="off" value="{{usuario.3}}" class="form-control"
-                        placeholder="Ingrese fullname">
-                    </div><br>
-                    <div class="text-center">
-                      <button type="submit" class="btn btn-success mb-2">Modificar</button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        {% endfor %}
-      </tbody>
     </table>
   </div>
+  <!--MODAL NEW USER -->
+  <div>
+    <div id="modalnewuser" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title text-primary" style="align-content: center;">Agregar usuario</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form action="{{ url_for('newUser') }}" method="POST">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="id">
+              <div class="form-group">
+                <label>Habilitar un nuevo rut</label>
+                <input type="text" name="rut" autocomplete="off" class="form-control"
+                  placeholder="Ingrese un rut valido para poder ser uso del sistema">
+              </div><br>
+              <div class="text-center">
+                <button type="submit" class="btn btn-success mb-2">Agregar nuevo usuario</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <!--MODAL EDIT USER !!-->
+    <div>
+      <div id="modaledituser" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title text-primary" style="align-content: center;">Modificar usuario</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form action="{{ url_for('updateUsuario') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="id" id="id" autocomplete="off">
+                <div class="form-group">
+                  <label>Username</label>
+                  <input type="text" name="username"  idautocomplete="off" id="username" class="form-control"
+                    placeholder="Ingrese username">
+                </div>
+                <div class="form-group">
+                  <label>Fullname</label>
+                  <input type="text" name="fullname" autocomplete="off" id="fullname" class="form-control"
+                    placeholder="Ingrese fullname">
+                </div>
+                <div class="form-group">
+                  <label>Email</label>
+                  <input type="text" name="email" autocomplete="off" id="email" class="form-control"
+                    placeholder="Ingrese email">
+                </div><br>
+                <div class="text-center">
+                  <button type="submit" class="btn btn-success mb-2">Modificar</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--MODAL DELETE USER ALERT!!-->
+    {% for usuario in filas %}
+    <div>
+      <div id="modaldelete{{usuario.0}}" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title text-danger" style="align-content: center;">Eliminar Usuario</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="text-center text-primary">
+              <h5>¿Estas seguro de eliminar este usuario?</h5>
+            </div><br>
+            <a href="/delete/{{ usuario.0 }}" class="btn btn-danger btn-sm">Eliminar</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {%endfor%}
+  </div>
+  <script>
+    $(document).ready(function () {
+      $('#miTabla').DataTable({
+        "ajax": "/obtener_usuarios",
+        "columns": [
+          { "data": "id" },
+          { "data": "username" },
+          { "data": "fullname" },
+          { "data": "email" },
+          {
+            "data": null,
+            "render": function (data, type, row) {
+              return '<div class="btn-group">' +
+                '<a class="btn btn-warning btn-sm mr-2" href="/update/' + row.id + '" data-bs-toggle="modal" data-bs-target="#modaledituser" data-user-id="' + row.id + '">Editar Usuario</a>' +
+                '<button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modaldelete' + row.id + '">Eliminar Usuario</button>' +
+                '</div>';
+            }
+          }
+        ],
+        "language": {
+          "sProcessing": "Procesando...",
+          "sLengthMenu": "Mostrar _MENU_ registros por pagina",
+          "sZeroRecords": "No se encontraron resultados",
+          "sEmptyTable": "No hay registros de tickets en la tabla",
+          "sInfo": "Mostrando registros de _START_ al _END_ de un total de _TOTAL_ registros",
+          "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+          "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+          "sSearch": "Buscar:",
+          "oPaginate": {
+            "sFirst": "Primero",
+            "sLast": "Ultimo",
+            "sNext": "Siguiente",
+            "sPrevious": "Anterior"
+          },
+          "oAria": {
+            "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+            "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+          }
+        },
+        "success": function (data) {
+          console.log(data); // Verificar los datos recibidos en la respuesta
+        },
+        "error": function (jqXHR, textStatus, errorThrown) {
+          console.log(textStatus, errorThrown); // Verificar si hay errores en la petición
+        }
+      });
+    });
+
+    // Agregar el evento click al botón "Ver ticket"
+    $(document).on('click', '[data-bs-target="#modaledituser"]', function () {
+      var user_id = $(this).data('user-id');
+      console.log(user_id)
+      // Hacer la petición AJAX para obtener los detalles del ticket correspondiente
+      $.ajax({
+        url: '/editar_usuario/' + user_id,
+        method: 'GET',
+        success: function (response) {
+          console.log(response.username)
+          // Actualizar el contenido del modal con los detalles del ticket
+          $('#username').val(response.username);
+          $('#fullname').val(response.fullname);
+          $('#email').val(response.email);
+          $('#id').val(user_id);
+
+          //Limpia contenido del chat cada vez que se cargen los msg
+          container.innerHTML = '';
+        },
+        error: function (xhr, status, error) {
+          console.log(error);
+        }
+      });
+    });
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 

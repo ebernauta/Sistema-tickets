@@ -46,21 +46,21 @@ class ModelUser():
         
     
     @classmethod
-    def newUser(self, db, username, password, fullname):
+    def newUser(self, db, rut):
         try:
             cursor = db.connection.cursor()
-            sql = """INSERT INTO user (id, username, password, fullname) 
-                            VALUES (null,'{}','{}','{}')""".format(username, password, fullname)
+            sql = """INSERT INTO user (id, username) 
+                            VALUES (null,'{}')""".format(rut)
             cursor.execute(sql)
         except Exception as ex:
             raise Exception(ex)
     
     @classmethod
-    def editUser(self, db, username, password, fullname, id_data):
+    def editUser(self, db, username, email, fullname, id_data):
         try:
             cursor = db.connection.cursor()
-            sql = """ UPDATE user SET username='{}', password='{}', fullname='{}'
-                    WHERE id='{}'""".format(username, password, fullname, id_data)
+            sql = """ UPDATE user SET username='{}', email='{}', fullname='{}'
+                    WHERE id='{}'""".format(username, email, fullname, id_data)
             cursor.execute(sql)
         except Exception as ex:
             raise Exception(ex)
