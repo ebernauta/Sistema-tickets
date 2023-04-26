@@ -46,13 +46,12 @@
           class="btn btn-success">Agregar nuevo usuario</a></li>
     </ul>
   </div>
-  <div class="container-fluid">
+  <div class="container">
     <table class="table table-secondary">
       <thead>
         <tr>
           <th scope="col">#ID</th>
-          <th scope="col">Username</th>
-          <th scope="col">Password</th>
+          <th scope="col">Rut</th>
           <th scope="col">Fullname</th>
           <th scope="col">Acción</th>
         </tr>
@@ -62,7 +61,6 @@
         <tr>
           <th>{{usuario.0}}</th>
           <td>{{usuario.1}}</td>
-          <td>{{usuario.2}}</td>
           <td>{{usuario.3}}</td>
           <td>
             <a type="button" href="/update/{{usuario.0}}" class="btn btn-warning btn-sm" data-bs-toggle="modal"

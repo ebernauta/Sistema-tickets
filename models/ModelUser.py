@@ -12,7 +12,7 @@ class ModelUser():
             cursor.execute(sql)
             row = cursor.fetchone()
             if row != None:
-                user = User(row[0], row[1], User.check_password(row[2], user.password), row[3])
+                user = User(row[0], row[1], user.password, row[3])
                 return user
             else:
                 return None
@@ -50,7 +50,7 @@ class ModelUser():
         try:
             cursor = db.connection.cursor()
             sql = """INSERT INTO user (id, username, password, fullname) 
-                            VALUES (null,'{}','{}','{}')""".format(username, User.generatePasswordHash(password), fullname)
+                            VALUES (null,'{}','{}','{}')""".format(username, password, fullname)
             cursor.execute(sql)
         except Exception as ex:
             raise Exception(ex)
@@ -60,7 +60,7 @@ class ModelUser():
         try:
             cursor = db.connection.cursor()
             sql = """ UPDATE user SET username='{}', password='{}', fullname='{}'
-                    WHERE id='{}'""".format(username, User.generatePasswordHash(password), fullname, id_data)
+                    WHERE id='{}'""".format(username, password, fullname, id_data)
             cursor.execute(sql)
         except Exception as ex:
             raise Exception(ex)
