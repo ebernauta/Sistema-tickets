@@ -6,9 +6,12 @@ from datetime import datetime
 from config import config
 import json
 from collections import defaultdict
+from flask_mail import Mail, Message
+import ssl
 # Models:
 from models.ModelUser import ModelUser
 from models.ModelTicket import ModelTicket 
+
 
 
 # Entities:
@@ -16,11 +19,20 @@ from models.entities.User import User
 from models.entities.Ticket import Ticket
 
 
+
 app = Flask(__name__)
 csrf = CSRFProtect(app)
 db = MySQL(app)
 login_manager_app = LoginManager(app)
 
+#flask mail settings
+app.config['MAIL_SERVER'] = 'smtp.office365.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'soporteTicket@outlook.es'
+app.config['MAIL_PASSWORD'] = 'admin.2023!'
+app.config['MAIL_DEFAULT_SENDER'] = ('AdministradorTickets', 'soporteTicket@outlook.es' )
+mail = Mail(app)
 
 @login_manager_app.user_loader
 def load_user(id):
@@ -59,6 +71,28 @@ def login():
             return render_template('auth/login.html')
     else:
         return render_template('auth/login.html')
+
+@app.route('/recuperar-contraseña', methods=['GET', 'POST'])
+def recuperarContraseña():
+    if request.method == 'POST':
+        rut = request.form['rut']
+        if not rut:
+            flash('Por favor, indique su rut', 'warning')
+            return redirect(url_for('recuperarContraseña'))
+        cursor = db.connection.cursor()
+        sql = """ SELECT password, email FROM user WHERE username = '{}' """.format(rut)
+        cursor.execute(sql)
+        result = cursor.fetchone()
+        if result:
+            contraseña, email = result
+            msg = Message('Recuperacion contraseña Sistema de tickets', recipients=[email])
+            msg.body = f'Este es un mensaje automatizado para recuperar su contraseña!\nSu contraseña es: {contraseña} '
+            mail.send(msg)
+            flash('Se ha enviado un correo electrónico con su contraseña', 'success')
+        else:
+            flash('El rut ingresado no existe', 'danger')
+        
+    return render_template('/auth/olvido_contraseña.html')
 
 @app.route('/registrarse', methods=['GET', 'POST'])
 def registrarse():
