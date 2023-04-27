@@ -26,7 +26,8 @@
                 <span class="fs-3">&nbsp;&nbsp;Bienvenido, {{current_user.fullname}}</span>
             </a>
             <ul class="nav">
-                <li class="nav-item m-1"><a href="{{url_for ('estadisticas_problemas') }}" class="btn btn-secondary">Estadisticas de problemas</a>
+                <li class="nav-item m-1"><a href="{{url_for ('estadisticas_problemas') }}"
+                        class="btn btn-secondary">Estadisticas de problemas</a>
                 </li>
                 <li class="nav-item m-1"><a href="{{url_for ('usuariosPanel') }}" class="btn btn-secondary">Usuarios</a>
                 </li>
@@ -37,6 +38,9 @@
             </ul>
         </header>
     </div>
+    <!-- Div donde se mostrará la tabla -->
+    <div id="tabla_tickets"></div>
+
     <div class="text-center">
         <h1>Bandeja de tickets</h1>
     </div>
@@ -149,7 +153,6 @@
         </div>
     </div>
     <script type="text/javascript">
-
 
         $(document).ready(function () {
             var select = document.querySelector('select[name="tipo_problema"]');
@@ -338,7 +341,7 @@
                 if (ticket_id) {
                     //actualizarModal(ticket_id);
                     const verTicketBtn = document.querySelector(`button.ver-ticket[data-ticket-id="${ticket_id}"]`);
-                    if (verTicketBtn){
+                    if (verTicketBtn) {
                         console.log("estoy dentro del ")
                         verTicketBtn.click();
                     }
