@@ -7,6 +7,7 @@ from config import config
 import json
 from collections import defaultdict
 from flask_mail import Mail, Message
+from smtplib import SMTPException
 import ssl
 # Models:
 from models.ModelUser import ModelUser
@@ -37,6 +38,11 @@ mail = Mail(app)
 @login_manager_app.user_loader
 def load_user(id):
     return ModelUser.get_by_id(db, id)
+
+
+@app.route('/test', methods=['GET', 'POST'])
+def test():
+    return render_template('test.html')
 
 @app.route('/')
 def index():
@@ -85,10 +91,15 @@ def recuperarContraseña():
         result = cursor.fetchone()
         if result:
             contraseña, email = result
-            msg = Message('Recuperacion contraseña Sistema de tickets', recipients=[email])
-            msg.body = f'Este es un mensaje automatizado para recuperar su contraseña!\nSu contraseña es: {contraseña} '
-            mail.send(msg)
-            flash('Se ha enviado un correo electrónico con su contraseña', 'success')
+            try:
+                msg = Message('Recuperacion contraseña Sistema de tickets', recipients=[email])
+                msg.body = f'Este es un mensaje automatizado para recuperar su contraseña!\nSu contraseña es: {contraseña} '
+                mail.send(msg)
+                flash('Se ha enviado un correo electrónico con su contraseña', 'success')
+                return redirect(url_for('login'))
+            except SMTPException as e:
+                flash('Ha ocurrido un error al enviar el correo electrónico', 'danger')
+                print(e)
         else:
             flash('El rut ingresado no existe', 'danger')
         
@@ -411,6 +422,7 @@ def editar_usuarios(id):
     else:
         return jsonify({"Error": "El usuario no se ha encontrado"})
     
+    
 @app.route('/obtener_departamentos', methods=['GET'])
 @login_required
 def obtener_departamentos():
@@ -512,11 +524,11 @@ def verTicket(id_ticket):
 @login_required
 def obtener_mensajes(id_ticket):
     cursor = db.connection.cursor()
-    cursor.execute("SELECT * FROM mensajes WHERE id_ticket = '{}' order by str_to_date(hora_mensaje, '%%Y-%%m-%%d %%H:%%i:%%s') asc".format(id_ticket))
+    cursor.execute("SELECT * FROM mensajes WHERE id_ticket = '{}' order by str_to_date(hora_mensaje, '%%Y-%%m-%%d %%H:%%i:%%s') ASC".format(id_ticket))
     mensajes = cursor.fetchall()
     cursor.close()
     if mensajes:
-        mensajes_json = [{'mensaje': m[1], 'hora_mensaje': m[2], 'user': m[3]} for m in mensajes[::-1]]
+        mensajes_json = [{'mensaje': m[1], 'hora_mensaje': m[2], 'user': m[3]} for m in mensajes]
         return jsonify(mensajes_json)
     else:
         return jsonify({"Error": "Creo que no hemos encontrado lo que buscamos"})
@@ -534,5 +546,5 @@ app.register_error_handler(404, status_404)
 app.config.from_object(config['development'])
 csrf.init_app(app)
 if __name__ == '__main__':
-    #app.run(host='0.0.0.0', port=5000)
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)
+    #app.run(debug=True)
