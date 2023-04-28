@@ -168,7 +168,6 @@
   {% endfor%}
   <script>
     var id_ticket = $("input[name='user_id']").val();
-    console.log(id_ticket)
     $(document).ready(function () {
       $('#miTabla').DataTable({
         "ajax": "/ticketUser/" + id_ticket,
@@ -207,7 +206,7 @@
             "render": function (data, type, row) {
               return '<div class="btn-group">' +
                 '<a class="btn btn-primary btn-sm mr-2" href="/verTicket/' + row.id_ticket + '" data-bs-toggle="modal" data-bs-target="#modalverticket" data-ticket-id="' + row.id_ticket + '">Ver ticket</a>' +
-                '<button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modaldeleteticket' + row.id_ticket + '">Eliminar ticket</button>' +
+                '<button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modaldeleteticket' + row.id_ticket + '">Cerrar ticket</button>' +
                 '</div>';
             }
           },
