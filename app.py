@@ -2,12 +2,13 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 from flask_mysqldb import MySQL
 from flask_wtf import CSRFProtect
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from datetime import datetime
-from config import config
+from datetime import datetime, timedelta
+from config import config, DevelopmentConfig
 import json
 from collections import defaultdict
 from flask_mail import Mail, Message
 from smtplib import SMTPException
+from itsdangerous import URLSafeTimedSerializer
 import ssl
 # Models:
 from models.ModelUser import ModelUser
@@ -34,6 +35,9 @@ app.config['MAIL_USERNAME'] = 'soporteTicket@outlook.es'
 app.config['MAIL_PASSWORD'] = 'admin.2023!'
 app.config['MAIL_DEFAULT_SENDER'] = ('AdministradorTickets', 'soporteTicket@outlook.es' )
 mail = Mail(app)
+
+app.config.from_object(DevelopmentConfig)
+serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
 @login_manager_app.user_loader
 def load_user(id):
@@ -67,6 +71,13 @@ def login():
                     flash("Hey tu rut está habilitado para el uso del sistema pero necesitas registrarte", "warning")
                     return redirect(url_for('registrarse'))
                 elif logged_user.password:
+                    print("paso por aca por que el rut y contraseña estan bien !!")
+                    login_user(logged_user)
+                    return redirect(url_for('home'))
+                elif logged_user.email_confirmed == '0':
+                    flash("Debes confirmar tu correo electronico antes de iniciar sesion!", "danger")
+                    return redirect(url_for('login'))
+                elif logged_user.email_confirmed == '1':
                     login_user(logged_user)
                     return redirect(url_for('home'))
                 else:
@@ -140,16 +151,52 @@ def verificarRut():
 @app.route('/registrarFuncionario/<rut>/<crear_usuario>', methods=['GET', 'POST'])
 def registrarFuncionario(rut, crear_usuario):
     if request.method == 'POST':
-        cursor = db.connection.cursor()
         fullname = request.form['fullname']
         password = request.form['password-confirm']
         email = request.form['email']
-        sql = """ UPDATE user SET password = '{}', fullname = '{}', email = '{}' WHERE username = '{}' """.format(password, fullname, email, rut)
+        cursor = db.connection.cursor()
+        sql = """SELECT id FROM user WHERE email = '{}'""".format(email)
         cursor.execute(sql)
-        flash("Usuario registrado con exito !", "success")
-        return redirect(url_for('login'))
+        result = cursor.fetchone()
+        if result:
+            flash('La dirección de correo electrónico ya está en uso', 'warning')
+            return redirect(url_for('registrarFuncionario', rut=rut, crear_usuario=crear_usuario))
+        else:
+            token = serializer.dumps(email, salt='confirm-email')
+            cursor.execute("UPDATE user SET fullname=%s, email=%s, password=%s, token=%s, token_expiration=%s WHERE username=%s", (fullname, email, password, token, datetime.utcnow() + timedelta(hours=24), rut))
+            db.connection.commit()
+            cursor.close()
+            flash('Se ha enviado un mensaje de confirmación a su correo electrónico', 'success')
+            msg = Message('Confirmar correo electrónico', recipients=[email])
+            link = url_for('confirm_email', token=token, _external=True)
+            msg.body = 'Para confirmar su correo electrónico, haga clic en el siguiente enlace:\n {}'.format(link)
+            mail.send(msg)
+            return redirect(url_for('login'))
     return render_template('/auth/register.html', crear_ususario=crear_usuario)
 
+@app.route('/confirmar/<token>')
+def confirm_email(token):
+    try:
+        email = serializer.loads(token, salt='confirm-email', max_age=86400)
+    except:
+        flash('El enlace de confirmación no es válido o ha caducado', 'warning')
+        return redirect(url_for('inicio'))
+    cursor = db.connection.cursor()
+    sql = """SELECT id FROM user WHERE email = '{}'""".format(email)
+    cursor.execute(sql)
+    result = cursor.fetchone()
+    if not result:
+        flash('La dirección de correo electrónico no existe', 'warning')
+        return redirect(url_for('inicio'))
+    else:
+        cursor.execute("UPDATE user SET email_confirmed = %s, token = NULL, token_expiration = NULL WHERE email = %s", (True, email))
+        db.connection.commit()
+        cursor.close()
+        flash('La dirección de correo electrónico ha sido confirmada', 'success')
+        msg = Message('Confirmación de correo electrónico',  recipients=[email])
+        msg.body = 'Su correo electrónico ha sido confirmado exitosamente.'
+        mail.send(msg)
+        return redirect(url_for('login'))
 
 @app.route('/logout')
 def logout():
@@ -546,5 +593,5 @@ app.register_error_handler(404, status_404)
 app.config.from_object(config['development'])
 csrf.init_app(app)
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
-    #app.run(debug=True)
+    #app.run(host='0.0.0.0', port=5000)
+    app.run(debug=True)
