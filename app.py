@@ -70,16 +70,12 @@ def login():
                 if logged_user.password and logged_user.fullname is None:
                     flash("Hey tu rut está habilitado para el uso del sistema pero necesitas registrarte", "warning")
                     return redirect(url_for('registrarse'))
-                elif logged_user.password:
-                    print("paso por aca por que el rut y contraseña estan bien !!")
+                elif logged_user.password and logged_user.email_confirmed == 1:
                     login_user(logged_user)
                     return redirect(url_for('home'))
-                elif logged_user.email_confirmed == '0':
-                    flash("Debes confirmar tu correo electronico antes de iniciar sesion!", "danger")
+                elif logged_user.password and logged_user.email_confirmed == 0:
+                    flash("El correo electronico no ha sido confirmado aun !!", "warning")
                     return redirect(url_for('login'))
-                elif logged_user.email_confirmed == '1':
-                    login_user(logged_user)
-                    return redirect(url_for('home'))
                 else:
                     flash("Contraseña incorrecta...", 'danger')
                     return render_template('auth/login.html')
@@ -240,9 +236,9 @@ def home():
 @login_required
 def deleteTicket(id_ticket):
     if request.method == 'GET':
-        flash("El ticket se ha eliminado exitosamente !", "success")
+        flash("El ticket se ha cerrado exitosamente !", "success")
         cursor = db.connection.cursor()
-        sql = """ DELETE FROM tickets WHERE id_ticket = '{}'""".format(id_ticket)
+        sql = """UPDATE tickets SET estado = 'Cerrado' WHERE id_ticket = '{}'""".format(id_ticket)
         cursor.execute(sql)
         return redirect(url_for('home'))
     else:
