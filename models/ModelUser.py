@@ -11,13 +11,16 @@ class ModelUser():
                     WHERE username = '{}'""".format(user.username)
             cursor.execute(sql)
             row = cursor.fetchone()
-            if row != None:
+            if row[2] is None:
                 user = User(row[0], row[1], user.password, row[3], row[4])
+                return user
+            elif row != None:
+                user = User(row[0], row[1], User.check_password(row[2], user.password), row[3], row[4])
                 return user
             else:
                 return None
         except Exception as ex:
-            raise Exception(ex)
+            print(ex)
 
     @classmethod
     def get_by_id(self, db, id):
