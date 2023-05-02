@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--Boostrap-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for ('static', filename='/css/login.css')}}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>Recuperar Contraseña</title>
+</head>
+
+<body class="text-center">
+    <main class="form-signin w-100 m-auto">
+        <form action="{{ url_for('confirm_contraseña', token=token) }}" method="POST">
+            <img src="\static\img\logo.png" alt="logo">
+            <h1 class="h3 mb-3 fw-normal">Sistema de tickets</h1>
+            {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+            <br />
+            {% for categories, message in messages %}
+            <div class="alert alert-{{categories}} alert-dismissible" role="alert">
+                <strong>{{ message }}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            {% endwith %}
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-floating">
+                <input type="password" class="form-control password-input" autocomplete="off" name="password"
+                    id="password-input">
+                <label for="password-input">Ingrese su nueva contraseña</label>
+            </div>
+            <div class="form-floating">
+                <input type="password" class="form-control password-input" autocomplete="off" name="password-confirm"
+                    id="password-confirm-input">
+                <label for="password-confirm-input">Confirme su contraseña</label>
+            </div>
+            <div id="password-match-error" class="text-danger d-none">Las contraseñas no coinciden.</div><br>
+            <div class="form-floating">
+                <button class="w-100 btn btn-outline-success" id="submit-button" type="submit">Confirmar Acción</button>
+            </div>
+            <div class="form-floating"><br>
+                <a href="/login">Volver al login del sistema</a>
+            </div>
+        </form>
+
+    </main>
+
+    <script>
+        // Seleccionar los campos de contraseña y el botón de submit
+        var passwordFields = $('.password-input');
+        var submitButton = $('#submit-button');
+
+        // Seleccionar el mensaje de error de coincidencia de contraseñas
+        var passwordMatchError = $('#password-match-error');
+
+        // Agregar un controlador de eventos para el evento 'input' de los campos de contraseña
+        passwordFields.on('input', function () {
+            var password = $('#password-input').val();
+            var confirmPassword = $('#password-confirm-input').val();
+            var errorMessage = '';
+
+            // Validar la contraseña y la confirmación de contraseña para espacios en blanco
+            if (/\s/.test(password) || /\s/.test(confirmPassword)) {
+                errorMessage = 'La contraseña no puede contener espacios en blanco';
+                passwordFields.addClass('is-invalid');
+                submitButton.prop('disabled', true);
+            } else {
+                passwordFields.removeClass('is-invalid');
+                submitButton.prop('disabled', false);
+
+                if (password !== confirmPassword) {
+                    errorMessage = 'Las contraseñas no coinciden';
+                    passwordMatchError.removeClass('d-none');
+                    submitButton.prop('disabled', true);
+                } else {
+                    passwordMatchError.addClass('d-none');
+                    submitButton.prop('disabled', false);
+                }
+                
+                // Deshabilitar el botón de submit si las contraseñas no coinciden
+                if (submitButton.prop('disabled')) {
+                    $('#submit-button').prop('disabled', true);
+                } else {
+                    $('#submit-button').prop('disabled', false);
+                }
+            }
+
+            // Mostrar el mensaje de error
+            $('#password-validation-message').html(errorMessage);
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-qKXV1j0HvMUeCBQ+QVp7JcfGl760yU08IQ+GpUo5hlbpg51QRiuqHAJz8+BrxE/N"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>

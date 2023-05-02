@@ -14,7 +14,7 @@
 
 <body class="text-center">
     <main class="form-signin w-100 m-auto">
-        <form action="{{ url_for('recuperarContraseña') }}" method="POST">
+        <form action="{{ url_for('cambiarContraseña') }}" method="POST">
             <img src="\static\img\logo.png" alt="logo">
             <h1 class="h3 mb-3 fw-normal">Sistema de tickets</h1>
             {% with messages = get_flashed_messages(with_categories=True) %}
@@ -35,7 +35,7 @@
                 <label for="floatingInput">Rut</label>
             </div><br>
             <div class="form-floating">
-                <button class="w-100 btn btn-outline-success" type="submit">Recuperar Contraseña</button>
+                <button class="w-100 btn btn-outline-success" type="submit">Solicitar cambio de contraseña</button>
             </div>
             <div class="form-floating"><br>
                 <a href="/login">Volver al login del sistema</a>
