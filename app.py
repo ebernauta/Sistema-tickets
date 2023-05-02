@@ -10,6 +10,7 @@ from flask_mail import Mail, Message
 from smtplib import SMTPException
 from itsdangerous import URLSafeTimedSerializer
 import ssl
+from werkzeug.security import check_password_hash, generate_password_hash
 # Models:
 from models.ModelUser import ModelUser
 from models.ModelTicket import ModelTicket 
@@ -70,7 +71,7 @@ def login():
                 if logged_user.password and logged_user.fullname is None:
                     flash("Hey tu rut está habilitado para el uso del sistema pero necesitas registrarte", "warning")
                     return redirect(url_for('registrarse'))
-                elif (logged_user.password and logged_user.email_confirmed == 1):
+                elif logged_user.password and logged_user.email_confirmed == 1:
                     print(f"LA CONTRASEÑA ES CORRECTA {logged_user.password} ---- {logged_user.email_confirmed}")
                     login_user(logged_user)
                     return redirect(url_for('home'))
@@ -85,7 +86,7 @@ def login():
             return render_template('auth/login.html')
     else:
         return render_template('auth/login.html')
-
+    
 @app.route('/cambiar-contraseña', methods=['GET', 'POST'])
 def cambiarContraseña():
     if request.method == 'POST':
@@ -167,6 +168,8 @@ def verificarRut():
     return render_template('/auth/register.html', crear_usuario=crear_usuario)
 
 
+from werkzeug.security import generate_password_hash, check_password_hash
+
 @app.route('/registrarFuncionario/<rut>/<crear_usuario>', methods=['GET', 'POST'])
 def registrarFuncionario(rut, crear_usuario):
     if request.method == 'POST':
@@ -181,8 +184,9 @@ def registrarFuncionario(rut, crear_usuario):
             flash('La dirección de correo electrónico ya está en uso', 'warning')
             return redirect(url_for('registrarFuncionario', rut=rut, crear_usuario=crear_usuario))
         else:
+            hashed_password = generate_password_hash(password)
             token = serializer.dumps(email, salt='confirm-email')
-            cursor.execute("UPDATE user SET fullname=%s, email=%s, password=%s, token=%s, token_expiration=%s WHERE username=%s", (fullname, email, password, token, datetime.utcnow() + timedelta(hours=24), rut))
+            cursor.execute("UPDATE user SET fullname=%s, email=%s, password=%s, token=%s, token_expiration=%s WHERE username=%s", (fullname, email, hashed_password, token, datetime.utcnow() + timedelta(hours=24), rut))
             db.connection.commit()
             cursor.close()
             flash('Se ha enviado un mensaje de confirmación a su correo electrónico', 'success')
