@@ -70,7 +70,8 @@ def login():
                 if logged_user.password and logged_user.fullname is None:
                     flash("Hey tu rut está habilitado para el uso del sistema pero necesitas registrarte", "warning")
                     return redirect(url_for('registrarse'))
-                elif logged_user.password and logged_user.email_confirmed == 1:
+                elif (logged_user.password and logged_user.email_confirmed == 1):
+                    print(f"LA CONTRASEÑA ES CORRECTA {logged_user.password} ---- {logged_user.email_confirmed}")
                     login_user(logged_user)
                     return redirect(url_for('home'))
                 elif logged_user.password and logged_user.email_confirmed == 0:
@@ -85,13 +86,13 @@ def login():
     else:
         return render_template('auth/login.html')
 
-@app.route('/recuperar-contraseña', methods=['GET', 'POST'])
-def recuperarContraseña():
+@app.route('/cambiar-contraseña', methods=['GET', 'POST'])
+def cambiarContraseña():
     if request.method == 'POST':
         rut = request.form['rut']
         if not rut:
             flash('Por favor, indique su rut', 'warning')
-            return redirect(url_for('recuperarContraseña'))
+            return redirect(url_for('cambiarContraseña'))
         cursor = db.connection.cursor()
         sql = """ SELECT password, email FROM user WHERE username = '{}' """.format(rut)
         cursor.execute(sql)
@@ -99,18 +100,40 @@ def recuperarContraseña():
         if result:
             contraseña, email = result
             try:
-                msg = Message('Recuperacion contraseña Sistema de tickets', recipients=[email])
-                msg.body = f'Este es un mensaje automatizado para recuperar su contraseña!\nSu contraseña es: {contraseña} '
+                token = serializer.dumps(email, salt='cambiar_contraseña')
+                msg = Message('Problema contraseña Sistema de tickets', recipients=[email])
+                link = url_for('confirm_contraseña', token=token, rut=rut, _external=True)
+                msg.body = 'Este es un mensaje automatizado para cambiar su contraseña!\n {}'.format(link)
                 mail.send(msg)
-                flash('Se ha enviado un correo electrónico con su contraseña', 'success')
+                flash('Se ha enviado un correo electrónico para cambiar su contraseña', 'success')
                 return redirect(url_for('login'))
             except SMTPException as e:
-                flash('Ha ocurrido un error al enviar el correo electrónico', 'danger')
+                flash('Ha ocurrido un error al enviar el correo electrónico, intente mas tarde', 'danger')
                 print(e)
         else:
             flash('El rut ingresado no existe', 'danger')
         
-    return render_template('/auth/olvido_contraseña.html')
+    return render_template('/auth/cambiar_contraseña.html')
+
+
+@app.route('/confirmar-contraseña/<token>', methods=['GET', 'POST'])
+def confirm_contraseña(token):
+    rut = request.args.get('rut')
+    try:
+        contraseña = serializer.loads(token, salt='cambiar_contraseña', max_age=86400)
+    except:
+        flash('El enlace de confirmacion no es valido o ha caducado', 'warning')
+        return redirect(url_for('login'))
+    
+    if request.method == 'POST':
+        contraseñaForm = request.form['password-confirm']
+        cursor = db.connection.cursor()
+        sql = """ UPDATE user SET password = '{}' WHERE username = '{}' """.format(contraseñaForm, rut)
+        cursor.execute(sql)
+        flash('La contraseña se ha cambiado satisfactoriamente', 'success')
+        return redirect(url_for('login'))
+    
+    return render_template('/auth/formNuevaContraseña.html', token=token)
 
 @app.route('/registrarse', methods=['GET', 'POST'])
 def registrarse():
@@ -176,14 +199,14 @@ def confirm_email(token):
         email = serializer.loads(token, salt='confirm-email', max_age=86400)
     except:
         flash('El enlace de confirmación no es válido o ha caducado', 'warning')
-        return redirect(url_for('inicio'))
+        return redirect(url_for('login'))
     cursor = db.connection.cursor()
     sql = """SELECT id FROM user WHERE email = '{}'""".format(email)
     cursor.execute(sql)
     result = cursor.fetchone()
     if not result:
         flash('La dirección de correo electrónico no existe', 'warning')
-        return redirect(url_for('inicio'))
+        return redirect(url_for('login'))
     else:
         cursor.execute("UPDATE user SET email_confirmed = %s, token = NULL, token_expiration = NULL WHERE email = %s", (True, email))
         db.connection.commit()
