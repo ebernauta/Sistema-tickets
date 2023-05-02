@@ -89,6 +89,7 @@ def login():
     
 @app.route('/cambiar-contraseña', methods=['GET', 'POST'])
 def cambiarContraseña():
+    rut = None
     if request.method == 'POST':
         rut = request.form['rut']
         if not rut:
@@ -114,27 +115,24 @@ def cambiarContraseña():
         else:
             flash('El rut ingresado no existe', 'danger')
         
-    return render_template('/auth/cambiar_contraseña.html')
+    return render_template('/auth/cambiar_contraseña.html', rut=rut)
 
-
-@app.route('/confirmar-contraseña/<token>', methods=['GET', 'POST'])
-def confirm_contraseña(token):
-    rut = request.args.get('rut')
+@app.route('/confirmar-contraseña/<token>/<rut>', methods=['GET', 'POST'])
+def confirm_contraseña(token, rut):
     try:
-        contraseña = serializer.loads(token, salt='cambiar_contraseña', max_age=86400)
+        contraseña = serializer.loads(token, salt='cambiar_contraseña', max_age=300)
     except:
         flash('El enlace de confirmacion no es valido o ha caducado', 'warning')
         return redirect(url_for('login'))
-    
     if request.method == 'POST':
         contraseñaForm = request.form['password-confirm']
+        hashedPassword = generate_password_hash(contraseñaForm)
         cursor = db.connection.cursor()
-        sql = """ UPDATE user SET password = '{}' WHERE username = '{}' """.format(contraseñaForm, rut)
+        sql = """ UPDATE user SET password = '{}' WHERE username = '{}' """.format(hashedPassword, rut)
         cursor.execute(sql)
         flash('La contraseña se ha cambiado satisfactoriamente', 'success')
         return redirect(url_for('login'))
-    
-    return render_template('/auth/formNuevaContraseña.html', token=token)
+    return render_template('/auth/formNuevaContraseña.html', token=token, rut=rut)
 
 @app.route('/registrarse', methods=['GET', 'POST'])
 def registrarse():
@@ -200,7 +198,7 @@ def registrarFuncionario(rut, crear_usuario):
 @app.route('/confirmar/<token>')
 def confirm_email(token):
     try:
-        email = serializer.loads(token, salt='confirm-email', max_age=86400)
+        email = serializer.loads(token, salt='confirm-email', max_age=300)
     except:
         flash('El enlace de confirmación no es válido o ha caducado', 'warning')
         return redirect(url_for('login'))
