@@ -192,7 +192,7 @@
           }
         },
         "success": function (data) {
-          console.log(data); // Verificar los datos recibidos en la respuesta
+           // Verificar los datos recibidos en la respuesta
         },
         "error": function (jqXHR, textStatus, errorThrown) {
           console.log(textStatus, errorThrown); // Verificar si hay errores en la petición
@@ -203,13 +203,13 @@
     // Agregar el evento click al botón "Ver ticket"
     $(document).on('click', '[data-bs-target="#modaledituser"]', function () {
       var user_id = $(this).data('user-id');
-      console.log(user_id)
+      
       // Hacer la petición AJAX para obtener los detalles del ticket correspondiente
       $.ajax({
         url: '/editar_usuario/' + user_id,
         method: 'GET',
         success: function (response) {
-          console.log(response.username)
+          
           // Actualizar el contenido del modal con los detalles del ticket
           $('#username').val(response.username);
           $('#fullname').val(response.fullname);

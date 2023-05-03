@@ -342,7 +342,6 @@
                     //actualizarModal(ticket_id);
                     const verTicketBtn = document.querySelector(`button.ver-ticket[data-ticket-id="${ticket_id}"]`);
                     if (verTicketBtn) {
-                        console.log("estoy dentro del ")
                         verTicketBtn.click();
                     }
                     localStorage.removeItem('ticket_id'); // Eliminar el ticket_id de localStorage después de usarlo
@@ -378,7 +377,7 @@
 
             // Crear elemento de mensaje con el valor ingresado, el remitente y la fecha de envío
             const message = `<div class="message sent"><p><span class="sender"><b>${user}</b>:</span> ${mensaje}</p><span class="timestamp">${timestamp}</span></div>`;
-            console.log(user)
+            
             // Agregar elemento de mensaje al contenedor
             container.innerHTML += message;
 
@@ -400,7 +399,7 @@
                 url: '/enviar_respuesta',
                 data: form_data,
                 success: function (response) {
-                    console.log(response);
+                    
                 },
                 error: function (error) {
                     console.log(error);

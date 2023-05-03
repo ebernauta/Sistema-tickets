@@ -72,7 +72,6 @@ def login():
                     flash("Hey tu rut está habilitado para el uso del sistema pero necesitas registrarte", "warning")
                     return redirect(url_for('registrarse'))
                 elif logged_user.password and logged_user.email_confirmed == 1:
-                    print(f"LA CONTRASEÑA ES CORRECTA {logged_user.password} ---- {logged_user.email_confirmed}")
                     login_user(logged_user)
                     return redirect(url_for('home'))
                 elif logged_user.password and logged_user.email_confirmed == 0:
@@ -294,7 +293,7 @@ def panelAdmin():
                 return redirect(url_for('panelAdmin'))
         return render_template('panel/panelAdmin.html', current_user_fullname=current_user.fullname, problemas=row)
     else:
-        return "<h1>No tienes permiso de acceso a esta pagina</h1>"
+        return render_template("/errores/noAcceso.html")
 
 @app.route('/estadoTicket', methods=['POST', 'GET'])
 @login_required
@@ -302,13 +301,12 @@ def cambioEstado():
     if current_user.fullname == "ADMINISTRADOR" and (request.method == "GET" or request.method == "POST"):
         id_ticket = request.form['id_ticket_estado']
         estado = request.form['estado']
-        print(f"ESTE ES EL ESTADO QUE ESTA ENVIAMDO {estado}")
         cursor = db.connection.cursor()
         sql = """ UPDATE tickets SET estado = '{}' WHERE id_ticket = '{}' """.format(estado, id_ticket)
         cursor.execute(sql)
         return redirect(url_for('panelAdmin'))
     else:
-        return "<h1>No tienes permiso de acceso a esta pagina</h1>"
+        return render_template("/errores/noAcceso.html")
 
 @app.route('/enviar_respuesta', methods=['POST'])
 @login_required
@@ -335,7 +333,7 @@ def usuariosPanel():
         listaUsuarios = ModelUser.allUsers(db)
         return render_template('panel/usuariosPanel.html', filas=listaUsuarios)
     else:
-        return "<h1>No tienes permiso de acceso a esta pagina</h1>"
+        return render_template("/errores/noAcceso.html")
 
 
 @app.route('/newUser', methods=['GET', 'POST'])
@@ -347,7 +345,7 @@ def newUser():
         nuevoUsuario = ModelUser.newUser(db, rut)
         return redirect(url_for('usuariosPanel'))
     else:
-        return "<h1>No tienes permiso de acceso a esta pagina</h1>"
+        return render_template("/errores/noAcceso.html")
         
 
 
@@ -360,7 +358,7 @@ def deleteUsuario(id_data):
         cursor.execute(sql)
         return redirect(url_for('usuariosPanel'))
     else:
-        return "<h1>No tienes permiso de acceso a esta pagina</h1>"
+        return render_template("/errores/noAcceso.html")
         
 
 @app.route('/updateUsuario', methods=['POST', 'GET'])
@@ -375,7 +373,7 @@ def updateUsuario():
         updateSql = ModelUser.editUser(db, username, email, fullname, id_data)
         return redirect(url_for('usuariosPanel'))
     else:
-        return "<h1>No tienes permiso de acceso a esta pagina</h1>"
+        return render_template("/errores/noAcceso.html")
         
         
         
@@ -389,7 +387,7 @@ def departamentosPanel():
         listaDepartamentos = cursor.fetchall()
         return render_template('panel/departamentosPanel.html', departamentos= listaDepartamentos)
     else:
-        return "<h1>No tienes permiso de acceso a esta pagina</h1>"
+        return render_template("/errores/noAcceso.html")
         
 
 
@@ -405,7 +403,7 @@ def nuevoDepartamento():
         cursor.execute(sql)
         return redirect(url_for('departamentosPanel'))
     else:
-        return "<h1>No tienes permiso de acceso a esta pagina</h1>"
+        return render_template("/errores/noAcceso.html")
     
 @app.route('/deleteDepartamento/<int:id_data>', methods=['GET'])
 @login_required
@@ -417,7 +415,7 @@ def deleteDepartamento(id_data):
         cursor.execute(sql)
         return redirect(url_for('departamentosPanel'))
     else:
-        return "<h1>No tienes permiso de acceso a esta pagina</h1>"
+        return render_template("/errores/noAcceso.html")
         
 
 @app.route('/updateDepartamento', methods=['GET', 'POST'])
@@ -433,7 +431,7 @@ def updateDepartamento():
         cursor.execute(sql)
         return redirect(url_for('departamentosPanel'))
     else:
-        return "<h1>No tienes permiso de acceso a esta pagina</h1>"
+        return render_template("/errores/noAcceso.html")
 
 
 

@@ -263,7 +263,7 @@
       // Agregar el evento click al botón "Ver ticket"
       $(document).on('click', '[data-bs-target="#modalverticket"]', function () {
         var ticket_id = $(this).data('ticket-id');
-        console.log(ticket_id)
+        
         // Hacer la petición AJAX para obtener los detalles del ticket correspondiente
         $.ajax({
           url: '/ver-ticket/' + ticket_id,
@@ -309,10 +309,10 @@
 
     const container = document.getElementById('chat-container');
     let user = '{{current_user_fullname}}';
-    console.log(user)
+    
     $('#chat-form').submit(function (event) {
       event.preventDefault();
-      console.log(user)
+      
       // Obtener valor del campo de entrada
       const mensaje = $('#mensaje').val();
 
@@ -348,7 +348,7 @@
         url: '/enviar_respuesta',
         data: form_data,
         success: function (response) {
-          console.log(response);
+          
         },
         error: function (error) {
           console.log(error);

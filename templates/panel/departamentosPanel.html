@@ -175,10 +175,10 @@
           }
         },
         "success": function (data) {
-          console.log(data); // Verificar los datos recibidos en la respuesta
+           // Verificar los datos recibidos en la respuesta
         },
         "error": function (jqXHR, textStatus, errorThrown) {
-          console.log(textStatus, errorThrown); // Verificar si hay errores en la petición
+           // Verificar si hay errores en la petición
         }
       });
     });
@@ -186,17 +186,17 @@
     // Agregar el evento click al botón "Ver ticket"
     $(document).on('click', '[data-bs-target="#modaleditdepartament"]', function () {
       var departamento_id = $(this).data('departamento-id');
-      console.log(departamento_id)
+      
       // Hacer la petición AJAX para obtener los detalles del ticket correspondiente
       $.ajax({
         url: '/editar_departamento/' + departamento_id,
         method: 'GET',
         success: function (response) {
-          console.log(response.departamento)
+          
           // Actualizar el contenido del modal con los detalles del ticket
           $('#departamento').val(response.departamento);
           $('#iddepa').val(departamento_id)
-          console.log(departamento_id)
+          
 
         },
         error: function (xhr, status, error) {
